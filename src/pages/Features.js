@@ -1,3 +1,3 @@
 export default function Features() {
-  return <h1 style={{ padding: "3rem" }}>Features Page</h1>;
+  return <div className="features-inner-content"><h1>Features Page</h1></div>;
 }

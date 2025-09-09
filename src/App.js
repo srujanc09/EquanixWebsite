@@ -8,81 +8,319 @@ import Docs from './pages/Docs';
 import About from './pages/About';
 import Resources from './pages/Resources';
 import './style.css';
+import {
+  IconAdjustmentsBolt,
+  IconCloud,
+  IconCurrencyDollar,
+  IconEaseInOut,
+  IconHeart,
+  IconHelp,
+  IconRouteAltLeft,
+  IconTerminal2,
+} from "@tabler/icons-react";
+import ExpandableChatDemo from "./components/ExpandableChatDemo";
 
+// Features Section Component
+function FeaturesSection() {
+  const features = [
+    {
+      title: "AI-Powered Debugging",
+      description: "Automatically detects and fixes code issues in real-time.",
+      icon: <IconTerminal2 className="h-6 w-6" />,
+    },
+    {
+      title: "Self-Learning System",
+      description: "Continuously improves by learning from your codebase patterns.",
+      icon: <IconEaseInOut className="h-6 w-6" />,
+    },
+    {
+      title: "Security First",
+      description: "Automatically patches vulnerabilities while maintaining compliance.",
+      icon: <IconAdjustmentsBolt className="h-6 w-6" />,
+    },
+    {
+      title: "Cloud Native",
+      description: "Seamlessly integrates with your cloud infrastructure.",
+      icon: <IconCloud className="h-6 w-6" />,
+    },
+    {
+      title: "Multi-tenant Architecture",
+      description: "Scalable solution for teams of all sizes.",
+      icon: <IconRouteAltLeft className="h-6 w-6" />,
+    },
+    {
+      title: "24/7 AI Support",
+      description: "Our AI agents are always available to assist you.",
+      icon: <IconHelp className="h-6 w-6" />,
+    },
+    {
+      title: "Performance Optimized",
+      description: "Keeps your applications running at peak efficiency.",
+      icon: <IconCurrencyDollar className="h-6 w-6" />,
+    },
+    {
+      title: "Future Proof",
+      description: "Continuously evolves with the latest technologies.",
+      icon: <IconHeart className="h-6 w-6" />,
+    },
+  ];
+
+  return (
+    <section className="w-full py-16 features-gradient-bg mt-60"> {/* Further increased margin-top to ensure separation */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-16" data-aos="fade-up">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl text-white">
+            Equanix Features
+          </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
+            Powerful capabilities to transform your development workflow
+          </p>
+        </div>
+        
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 relative z-10"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
+          {features.map((feature, index) => (
+            <div
+              key={index}
+              className={`flex flex-col lg:border-r py-10 relative group/feature border-gray-500 ${
+                (index === 0 || index === 4) && "lg:border-l"
+              } ${
+                index < 4 && "lg:border-b"
+              }`}
+              data-aos="fade-up"
+              data-aos-delay={(index % 4) * 100 + 200}
+            >
+              {index < 4 && (
+                <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-gray-700/20 to-transparent pointer-events-none" />
+              )}
+              {index >= 4 && (
+                <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-gray-700/20 to-transparent pointer-events-none" />
+              )}
+              <div className="mb-4 relative z-10 px-10 text-gray-300">
+                {feature.icon}
+              </div>
+              <div className="text-lg font-bold mb-2 relative z-10 px-10">
+                <div className="absolute left-0 inset-y-0 h-6 group-hover/feature:h-8 w-1 rounded-tr-full rounded-br-full bg-gray-500 group-hover/feature:bg-white transition-all duration-200 origin-center" />
+                <span className="group-hover/feature:translate-x-2 transition duration-200 inline-block text-white">
+                  {feature.title}
+                </span>
+              </div>
+              <p className="text-sm text-gray-300 max-w-xs relative z-10 px-10">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Logo Carousel Component
+function LogoCarousel() {
+  const logos = [
+    {
+      id: "logo-1",
+      description: "Astro",
+      image: "https://www.shadcnblocks.com/images/block/logos/astro.svg",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-2",
+      description: "Figma",
+      image: "https://www.shadcnblocks.com/images/block/logos/figma.svg",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-3",
+      description: "Next.js",
+      image: "https://www.shadcnblocks.com/images/block/logos/nextjs.svg",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-4",
+      description: "React",
+      image: "https://www.shadcnblocks.com/images/block/logos/react.png",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-5",
+      description: "shadcn/ui",
+      image: "https://www.shadcnblocks.com/images/block/logos/shadcn-ui.svg",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-6",
+      description: "Supabase",
+      image: "https://www.shadcnblocks.com/images/block/logos/supabase.svg",
+      className: "h-7 w-auto",
+    },
+    {
+      id: "logo-7",
+      description: "Tailwind CSS",
+      image: "https://www.shadcnblocks.com/images/block/logos/tailwind.svg",
+      className: "h-4 w-auto",
+    },
+    {
+      id: "logo-8",
+      description: "Vercel",
+      image: "https://www.shadcnblocks.com/images/block/logos/vercel.svg",
+      className: "h-7 w-auto",
+    },
+  ];
+
+  return (
+    <section className="logo-carousel">
+      <div className="container flex flex-col items-center text-center">
+        <h1 className="my-6 text-2xl font-bold text-pretty lg:text-4xl text-white">
+          Trusted by these companies
+        </h1>
+      </div>
+      <div className="pt-10 md:pt-16 lg:pt-20">
+        <div className="relative mx-auto flex items-center justify-center lg:max-w-5xl">
+          <div className="w-full overflow-hidden">
+            <div className="flex animate-[scroll_20s_linear_infinite]">
+              {logos.map((logo) => (
+                <div
+                  key={logo.id}
+                  className="mx-10 flex min-w-0 shrink-0 grow-0 basis-1/3 justify-center sm:basis-1/4 md:basis-1/5 lg:basis-1/6"
+                >
+                  <div className="flex shrink-0 items-center justify-center">
+                    <img
+                      src={logo.image}
+                      alt={logo.description}
+                      className={logo.className}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-gray-800 to-transparent"></div>
+          <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-gray-800 to-transparent"></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Navbar Component
 function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    AOS.init();
+    const handleScroll = () => {
+      const header = document.querySelector('.navbar-container');
+      if (window.scrollY > 10) {
+        header.classList.add('navbar-scrolled');
+      } else {
+        header.classList.remove('navbar-scrolled');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <header
-      className="container"
-      style={{ padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-    >
-      <h1
-        data-aos="fade-down"
-        className="logo"
-        style={{ cursor: 'pointer' }}
-        onClick={() => navigate('/')}
-      >
-        Self Healing AI
-      </h1>
+    <header className="navbar-container">
+      <div className="navbar-content container">
+        <h1
+          data-aos="fade-down"
+          data-aos-delay="0"
+          className="logo"
+          onClick={() => navigate('/')}
+        >
+          Equanix
+        </h1>
 
-      <nav style={{ display: 'flex', gap: '2rem' }}>
-        {/* Removed HOME link */}
-        <Link to="/about">ABOUT US</Link>
-        <Link to="/features">FEATURES</Link>
-        <Link to="/resources">RESOURCES</Link>
-        <Link to="/docs">PRICING</Link>
-      </nav>
-
+        <nav className="navbar-links">
+          <Link to="/about" data-aos="fade-down" data-aos-delay="200">ABOUT US</Link>
+          <Link to="/features" data-aos="fade-down" data-aos-delay="400">FEATURES</Link>
+          <Link to="/resources" data-aos="fade-down" data-aos-delay="600">RESOURCES</Link>
+          <Link to="/docs" data-aos="fade-down" data-aos-delay="800">PRICING</Link>
+        </nav>
+      </div>
       <button
-        onClick={() => navigate('/features')}
-        className="btn-signing"
+        onClick={() => navigate('/dashboard')}
+        className="btn-login"
+        data-aos="fade-down"
+        data-aos-delay="1000"
       >
-        Self Healing
+        Log In
       </button>
     </header>
   );
 }
 
+// Home Component
 function Home() {
+  useEffect(() => {
+    AOS.refresh();
+  }, []);
+
   return (
-    <main>
-      <div className="content">
-        <div className="tag-box">
-          <div className="tag">Self Healing AI</div>
+    <main className="main-content-wrapper">
+      <div className="content" style={{ marginTop: '3.5rem' }}>
+        <div className="tag-box" data-aos="fade-up" data-aos-delay="100">
+          <div className="tag" data-aos="fade-up" data-aos-delay="200">Equanix</div>
         </div>
-        <h1>EMAIL FOR <br /> SIGNUPS</h1>
-        <p className="description">Fix your code with security and efficiency!</p>
-        <div className="buttons">
+        <h1 data-aos="fade-up" data-aos-delay="300">
+          EMAIL FOR <br /> SIGNUPS
+        </h1>
+        <p className="description" data-aos="fade-up" data-aos-delay="400">
+          Fix your code with security and efficiency!
+        </p>
+        <div className="buttons" data-aos="fade-up" data-aos-delay="500">
           <Link to="/docs" className="btn-get-started">Documentation &gt;</Link>
           <Link to="/features" className="btn-signing-main">Get Started &gt;</Link>
         </div>
       </div>
-      <div style={{
-        marginTop: '3rem',
-        display: 'flex',
-        justifyContent: 'center'
-      }}>
+      <div
+        style={{
+          marginTop: '3rem',
+          display: 'flex',
+          justifyContent: 'center'
+        }}
+        data-aos="fade-up"
+        data-aos-delay="600"
+      >
         <HeroScrollDemo />
+      </div>
+      <div className="mt-0 mb-0 relative z-20">
+        <ExpandableChatDemo />
+      </div>
+      <div className="mt-0 -mt-16">
+        <FeaturesSection />
+        <LogoCarousel />
       </div>
     </main>
   );
 }
 
+// Main App Component
 export default function App() {
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-in-out',
+      once: true,
+      mirror: false,
+    });
+  }, []);
+
   return (
     <Router>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/features" element={<Features />} />
-        <Route path="/docs" element={<Docs />} />
-        <Route path="/resources" element={<Resources />} />
+        <Route path="/about" element={<div className="main-content-wrapper"><About /></div>} />
+        <Route path="/features" element={<div className="main-content-wrapper"><Features /></div>} />
+        <Route path="/docs" element={<div className="main-content-wrapper"><Docs /></div>} />
+        <Route path="/resources" element={<div className="main-content-wrapper"><Resources /></div>} />
       </Routes>
     </Router>
   );

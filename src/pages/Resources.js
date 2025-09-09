@@ -1,3 +1,3 @@
 export default function Resources() {
-  return <h1 style={{ padding: "3rem" }}>Resources Page</h1>;
+  return <div className="resources-inner-content"><h1>Resources Page</h1></div>;
 }

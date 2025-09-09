@@ -35,45 +35,14 @@ export default function About() {
   ];
 
   return (
-    <div className="about-container" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-      <h1
-        data-aos="fade-down"
-        data-aos-duration="1000"
-        style={{
-          fontSize: '3rem',
-          fontWeight: 'bold',
-          marginBottom: '2rem',
-          color: '#fff',
-          textShadow: '0 0 10px rgba(255,255,255,0.2)'
-        }}
-      >
+    <div className="about-inner-content" >
+      <h1 data-aos="fade-down" data-aos-duration="1000" className="about-title">
         Meet the Team
       </h1>
-
-      <p
-        data-aos="fade-up"
-        data-aos-delay="100"
-        data-aos-duration="1000"
-        style={{
-          maxWidth: '700px',
-          margin: '0 auto 3rem',
-          fontSize: '1.2rem',
-          color: '#ccc',
-        }}
-      >
+      <p data-aos="fade-up" data-aos-delay="100" data-aos-duration="1000" className="about-desc">
         We're a passionate team of developers, designers, and engineers working to make AI smarter and more secure.
       </p>
-
-      <div
-        className="team-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '2rem',
-          maxWidth: '1200px',
-          margin: '0 auto',
-        }}
-      >
+      <div className="team-grid">
         {team.map((person, index) => (
           <div
             key={index}
@@ -81,30 +50,15 @@ export default function About() {
             data-aos="fade-up"
             data-aos-delay={index * 200}
             data-aos-duration="1000"
-            style={{
-              backgroundColor: '#1a1a1a',
-              borderRadius: '1rem',
-              padding: '2rem',
-              color: '#fff',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-              transition: 'transform 0.3s ease',
-            }}
           >
             <img
               src={person.image}
               alt={person.name}
-              style={{
-                width: '120px',
-                height: '120px',
-                borderRadius: '50%',
-                objectFit: 'cover',
-                marginBottom: '1rem',
-                border: '3px solid #444',
-              }}
+              className="team-avatar"
             />
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.3rem' }}>{person.name}</h2>
-            <h3 style={{ fontSize: '1rem', color: '#a7a7a7', marginBottom: '1rem' }}>{person.role}</h3>
-            <p style={{ fontSize: '0.95rem', color: '#ccc' }}>{person.desc}</p>
+            <h2 className="team-name">{person.name}</h2>
+            <h3 className="team-role">{person.role}</h3>
+            <p className="team-desc">{person.desc}</p>
           </div>
         ))}
       </div>

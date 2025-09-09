@@ -1,9 +1,9 @@
 import React from "react";
-import PricingBasic from "/Users/srujanchilakapati/my_app/src/components/PricingBasic.tsx"; // Adjust if your alias doesn't work
+import PricingBasic from "../components/PricingBasic.tsx";
 
 export default function Docs() {
   return (
-    <div style={{ padding: "3rem" }}>
+    <div className="docs-inner-content">
       <PricingBasic />
     </div>
   );
