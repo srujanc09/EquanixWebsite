@@ -1,4 +1,8 @@
-# Getting Started with Create React App
+# EquanixWebsite
+
+This is the Equanix website project, built with React and modern UI components.
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
