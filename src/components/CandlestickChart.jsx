@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 
 // Simple candlestick animation drawn on a canvas. Generates synthetic data
 // that trends slightly upward and animates leftwards in a looping manner.
-export default function CandlestickChart({ width = 420, height = 220 }) {
+export default function CandlestickChart({ width = 420, height = 220, colorBy = 'slope' }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
 
@@ -81,7 +81,18 @@ export default function CandlestickChart({ width = 420, height = 220 }) {
         const h = height - ((c.high - min) / range) * (height - 20) - 10;
         const l = height - ((c.low - min) / range) * (height - 20) - 10;
 
-        const isUp = cl >= o;
+          // Determine coloring strategy:
+          // - 'open' (standard): green when close >= open, red otherwise
+          // - 'slope' (requested): green when close >= previous candle's close, red otherwise
+          let isUp = cl >= o; // fallback to open-based
+          if (colorBy === 'slope') {
+            const prev = i > 0 ? candles[i - 1] : null;
+            if (prev) {
+              isUp = c.close >= prev.close;
+            } else {
+              isUp = cl >= o;
+            }
+          }
         // wick
         ctx.beginPath();
         ctx.strokeStyle = isUp ? '#22c55e' : '#ef4444';
