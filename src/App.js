@@ -19,6 +19,7 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import ExpandableChatDemo from "./components/ExpandableChatDemo";
+import CandlestickChart from "./components/CandlestickChart";
 
 // Features Section Component
 function FeaturesSection() {
@@ -279,16 +280,27 @@ function Home() {
           <Link to="/features" className="btn-signing-main">Get Started &gt;</Link>
         </div>
       </div>
-      <div
-        style={{
-          marginTop: '3rem',
-          display: 'flex',
-          justifyContent: 'center'
-        }}
-        data-aos="fade-up"
-        data-aos-delay="600"
-      >
-        <HeroScrollDemo />
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '3rem', marginTop: '1.5rem' }}>
+        <div style={{ flex: '1 1 60%' }}>
+          <div
+            style={{
+              marginTop: '3rem',
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+            data-aos="fade-up"
+            data-aos-delay="600"
+          >
+            <HeroScrollDemo />
+          </div>
+        </div>
+
+        {/* Right side chart area (moved slightly left/up and enlarged) */}
+        <div style={{ flex: '0 0 1040px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }} data-aos="fade-left" data-aos-delay="450">
+          <div className="chart-card" style={{ width: 1040, transform: 'translate(-480px, -430px)' }}>
+            <CandlestickChart width={1040} height={600} />
+          </div>
+        </div>
       </div>
       <div className="mt-0 mb-0 relative z-20">
         <ExpandableChatDemo />
