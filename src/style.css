@@ -572,3 +572,54 @@ html, body {
 .resources-inner-content {
   padding: 3rem;
 }
+
+/* Documentation specific styles */
+.docs-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.docs-container h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #fff;
+  text-align: center;
+}
+
+.docs-container h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem 0;
+  color: #fff;
+  border-bottom: 2px solid #444;
+  padding-bottom: 0.5rem;
+}
+
+.docs-container h3 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 1.5rem 0 0.5rem 0;
+  color: #e7e7e7;
+}
+
+.docs-container p {
+  margin-bottom: 1rem;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.docs-container pre {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.docs-container code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #a6e3a1;
+  font-size: 0.9rem;
+}

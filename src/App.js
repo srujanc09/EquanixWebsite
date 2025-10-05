@@ -242,7 +242,7 @@ function Navbar() {
           <Link to="/about" data-aos="fade-down" data-aos-delay="200">ABOUT US</Link>
           <Link to="/features" data-aos="fade-down" data-aos-delay="400">FEATURES</Link>
           <Link to="/resources" data-aos="fade-down" data-aos-delay="600">RESOURCES</Link>
-          <Link to="/docs" data-aos="fade-down" data-aos-delay="800">PRICING</Link>
+          <Link to="/docs" data-aos="fade-down" data-aos-delay="800">DOCUMENTATION</Link>
         </nav>
       </div>
       <button
