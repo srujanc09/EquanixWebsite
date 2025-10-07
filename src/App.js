@@ -263,7 +263,16 @@ function Navbar() {
 // Dashboard Button Component
 function DashboardButton() {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
+  // hide the fixed dashboard button when on profile or notifications tabs
+  if (location && location.pathname) {
+    const p = location.pathname;
+    if (p.startsWith('/dashboard/profile') || p.startsWith('/dashboard/notifications')) {
+      return null;
+    }
+  }
+
   return (
     <button
       onClick={() => navigate('/dashboard')}

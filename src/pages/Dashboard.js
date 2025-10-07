@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Routes, Route, Outlet } from 'react-router-dom';
 import {
   IconHome,
   IconUser,
@@ -9,6 +9,11 @@ import {
   IconFiles,
   IconLogout
 } from "@tabler/icons-react";
+import DashboardProfile from './dashboard/DashboardProfile';
+import DashboardNotifications from './dashboard/DashboardNotifications';
+import DashboardAnalytics from './dashboard/DashboardAnalytics';
+import DashboardProjects from './dashboard/DashboardProjects';
+import DashboardSettings from './dashboard/DashboardSettings';
 
 export default function Dashboard() {
   const sidebarItems = [
@@ -26,7 +31,9 @@ export default function Dashboard() {
       <div className="dashboard-sidebar">
         {/* Logo at top left */}
         <div className="dashboard-logo">
-          <h1>Equanix</h1>
+          <h1>
+            <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>Equanix</Link>
+          </h1>
         </div>
         
         {/* Navigation Menu */}
@@ -52,50 +59,64 @@ export default function Dashboard() {
         </div>
       </div>
       
-      {/* Main Content Area */}
+      {/* Main Content Area (uses nested routing) */}
       <div className="dashboard-main">
         <div className="dashboard-header">
           <h2>Welcome to your Dashboard</h2>
           <p>Manage your Equanix account and projects</p>
         </div>
-        
+
         <div className="dashboard-content">
-          <div className="dashboard-cards">
-            <div className="dashboard-card">
-              <h3>Active Projects</h3>
-              <p className="dashboard-stat">12</p>
-            </div>
-            <div className="dashboard-card">
-              <h3>Total Users</h3>
-              <p className="dashboard-stat">1,234</p>
-            </div>
-            <div className="dashboard-card">
-              <h3>System Health</h3>
-              <p className="dashboard-stat">99.9%</p>
-            </div>
-            <div className="dashboard-card">
-              <h3>API Calls</h3>
-              <p className="dashboard-stat">45,678</p>
-            </div>
-          </div>
-          
-          <div className="dashboard-section">
-            <h3>Recent Activity</h3>
-            <div className="activity-list">
-              <div className="activity-item">
-                <span>Project "WebApp" deployed successfully</span>
-                <span className="activity-time">2 minutes ago</span>
-              </div>
-              <div className="activity-item">
-                <span>New user registered</span>
-                <span className="activity-time">5 minutes ago</span>
-              </div>
-              <div className="activity-item">
-                <span>System backup completed</span>
-                <span className="activity-time">1 hour ago</span>
-              </div>
-            </div>
-          </div>
+          <Routes>
+            <Route path="/" element={
+              <>
+                <div className="dashboard-cards">
+                  <div className="dashboard-card">
+                    <h3>Active Projects</h3>
+                    <p className="dashboard-stat">12</p>
+                  </div>
+                  <div className="dashboard-card">
+                    <h3>Total Users</h3>
+                    <p className="dashboard-stat">1,234</p>
+                  </div>
+                  <div className="dashboard-card">
+                    <h3>System Health</h3>
+                    <p className="dashboard-stat">99.9%</p>
+                  </div>
+                  <div className="dashboard-card">
+                    <h3>API Calls</h3>
+                    <p className="dashboard-stat">45,678</p>
+                  </div>
+                </div>
+
+                <div className="dashboard-section">
+                  <h3>Recent Activity</h3>
+                  <div className="activity-list">
+                    <div className="activity-item">
+                      <span>Project "WebApp" deployed successfully</span>
+                      <span className="activity-time">2 minutes ago</span>
+                    </div>
+                    <div className="activity-item">
+                      <span>New user registered</span>
+                      <span className="activity-time">5 minutes ago</span>
+                    </div>
+                    <div className="activity-item">
+                      <span>System backup completed</span>
+                      <span className="activity-time">1 hour ago</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            } />
+            <Route path="analytics" element={<DashboardAnalytics />} />
+            <Route path="projects" element={<DashboardProjects />} />
+            <Route path="profile" element={<DashboardProfile />} />
+            <Route path="notifications" element={<DashboardNotifications />} />
+            <Route path="settings" element={<DashboardSettings />} />
+          </Routes>
+
+          {/* nested content outlet for the dashboard pages */}
+          <Outlet />
         </div>
       </div>
     </div>

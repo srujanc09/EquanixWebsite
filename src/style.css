@@ -175,26 +175,25 @@ html, body {
   text-shadow: 0 4px 32px #fff, 0 1px 0 #a7a7a7;
 }
 
-/* Dashboard Button Styles */
+/* Dashboard / action button base styles (now non-fixed) */
 .btn-dashboard {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
+  display: inline-block;
   background: #4caf50;
   color: white;
   font-weight: bold;
   border-radius: 50px;
-  padding: 0.5rem 1.5rem;
+  padding: 0.5rem 1.25rem;
   font-size: 1rem;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s ease, transform 0.2s ease;
-  z-index: 1100;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  z-index: auto;
 }
 
 .btn-dashboard:hover {
   background: #45a049;
-  transform: scale(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.28);
 }
 
 /* Dashboard Button - Fixed at top right */
@@ -867,4 +866,119 @@ html, body {
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
+}
+
+/* Enhanced Dashboard Profile & Notifications Styles */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.profile-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.profile-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.6);
+}
+.profile-card h4 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+.profile-card p {
+  color: #d1d1d1;
+  margin-bottom: 0.45rem;
+}
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+}
+.profile-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.btn-dashboard.secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 10px;
+}
+.btn-dashboard.small {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.notification-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.03);
+  padding: 0.9rem;
+  border-radius: 10px;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.notification-item.unread {
+  border-left: 4px solid #60a5fa; /* blue accent for unread */
+  background: linear-gradient(90deg, rgba(96,165,250,0.03), rgba(255,255,255,0.01));
+}
+.notification-body {
+  flex: 1 1 auto;
+  padding-right: 1rem;
+}
+.notification-body strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 0.25rem;
+}
+.notification-body p {
+  color: #cfcfcf;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.notification-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.notification-time {
+  color: #9aa4b2;
+  font-size: 0.85rem;
+}
+.notification-item button.btn-dashboard {
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.notification-item button.btn-dashboard:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Small responsive tweaks for the new components */
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+  .profile-avatar { width: 56px; height: 56px; }
+  .notification-meta { align-items: center; }
 }
