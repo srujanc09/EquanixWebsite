@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import HeroScrollDemo from './HeroScrollDemo';
 import Features from './pages/Features';
@@ -210,6 +211,15 @@ function LogoCarousel() {
 }
 
 // Navbar Component
+function NavbarWrapper() {
+  const location = useLocation();
+  // hide navbar on dashboard and any nested dashboard routes
+  if (location && location.pathname && location.pathname.startsWith('/dashboard')) {
+    return null;
+  }
+  return <Navbar />;
+}
+
 function Navbar() {
   const navigate = useNavigate();
 
@@ -335,7 +345,7 @@ export default function App() {
 
   return (
     <Router>
-      <Navbar />
+      <NavbarWrapper />
       <DashboardButton />
       <Routes>
         <Route path="/" element={<Home />} />

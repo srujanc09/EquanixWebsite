@@ -20,22 +20,37 @@ export default function CandlestickChart({ width = 420, height = 220, colorBy = 
     const candleWidth = Math.max(3, Math.floor(width / candleCount));
     const spacing = 1;
     const visibleCount = Math.floor(width / (candleWidth + spacing));
+    // crypto-backed randomness (fallback to Math.random)
+    const rnd = () => {
+      try {
+        if (window && window.crypto && window.crypto.getRandomValues) {
+          const arr = new Uint32Array(1);
+          window.crypto.getRandomValues(arr);
+          // convert to [0,1)
+          return arr[0] / 0xffffffff;
+        }
+      } catch (e) {
+        // fallthrough
+      }
+      return Math.random();
+    };
 
-    // generate initial candles with a gentle upward trend
+    // generate initial candles with a random starting price and non-deterministic walk
     const candles = [];
-    let price = 100;
+    let price = 50 + rnd() * 150; // randomize base price
     for (let i = 0; i < candleCount; i++) {
-      const v = (Math.random() - 0.4) * 1.6; // small random
-      const open = price;
-      const close = +(price + v + i * 0.02).toFixed(2);
-      const high = +(Math.max(open, close) + Math.random() * 1.6).toFixed(2);
-      const low = +(Math.min(open, close) - Math.random() * 1.6).toFixed(2);
+      const v = (rnd() - 0.5) * 2.4 + (i * 0.02); // slightly larger random spread
+      const open = +price.toFixed(2);
+      const close = +(price + v).toFixed(2);
+      const high = +(Math.max(open, close) + rnd() * 2.6).toFixed(2);
+      const low = +(Math.min(open, close) - rnd() * 2.6).toFixed(2);
       candles.push({ open, close, high, low });
       price = close;
     }
 
     let nextCandleTimer = 0;
-    const tickInterval = 140; // ms between new candles
+    // jitter tickInterval so new candles don't come at a perfectly regular cadence
+    let tickInterval = 120 + rnd() * 160; // ms between new candles (randomized)
     let lastTime = performance.now();
     let progressOffset = 0; // animation offset [0..1] between candle steps
 
@@ -127,17 +142,23 @@ export default function CandlestickChart({ width = 420, height = 220, colorBy = 
         // derive next candle from last price
         const last = candles[candles.length - 1];
         let base = last.close;
-        // gentle upward drift with noise
-        const noise = (Math.random() - 0.45) * 1.8;
-        const trend = 0.05 + Math.random() * 0.06; // upward bias
+        // gentle drift with stronger randomized noise and occasional spikes
+        const noise = (rnd() - 0.5) * 2.4;
+        let trend = (rnd() - 0.4) * 0.12; // small variable bias (can be up or down)
+        // occasional spike or drop to break repeating patterns
+        if (rnd() < 0.03) {
+          trend += (rnd() - 0.5) * 8; // rare large movement
+        }
         const close = +(base + noise + trend).toFixed(2);
-        const open = +(base + (Math.random() - 0.6) * 0.6).toFixed(2);
-        const high = +(Math.max(open, close) + Math.random() * 1.2).toFixed(2);
-        const low = +(Math.min(open, close) - Math.random() * 1.2).toFixed(2);
+        const open = +(base + (rnd() - 0.6) * 0.8).toFixed(2);
+        const high = +(Math.max(open, close) + rnd() * 2.6).toFixed(2);
+        const low = +(Math.min(open, close) - rnd() * 2.6).toFixed(2);
         candles.push({ open, close, high, low });
         if (candles.length > candleCount) candles.shift();
         // reset timer
         nextCandleTimer = 0;
+        // add jitter to the next interval to avoid a steady repeating cadence
+        tickInterval = 120 + rnd() * 160;
         progressOffset = 0;
       }
 
