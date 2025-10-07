@@ -7,6 +7,7 @@ import Features from './pages/Features';
 import Docs from './pages/Docs';
 import About from './pages/About';
 import Resources from './pages/Resources';
+import Dashboard from './pages/Dashboard';
 import './style.css';
 import {
   IconAdjustmentsBolt,
@@ -245,15 +246,23 @@ function Navbar() {
           <Link to="/docs" data-aos="fade-down" data-aos-delay="800">DOCUMENTATION</Link>
         </nav>
       </div>
-      <button
-        onClick={() => navigate('/dashboard')}
-        className="btn-login"
-        data-aos="fade-down"
-        data-aos-delay="1000"
-      >
-        Log In
-      </button>
     </header>
+  );
+}
+
+// Dashboard Button Component
+function DashboardButton() {
+  const navigate = useNavigate();
+  
+  return (
+    <button
+      onClick={() => navigate('/dashboard')}
+      className="btn-dashboard-fixed"
+      data-aos="fade-down"
+      data-aos-delay="1000"
+    >
+      Dashboard
+    </button>
   );
 }
 
@@ -327,12 +336,15 @@ export default function App() {
   return (
     <Router>
       <Navbar />
+      <DashboardButton />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<div className="main-content-wrapper"><About /></div>} />
         <Route path="/features" element={<div className="main-content-wrapper"><Features /></div>} />
         <Route path="/docs" element={<div className="main-content-wrapper"><Docs /></div>} />
         <Route path="/resources" element={<div className="main-content-wrapper"><Resources /></div>} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/*" element={<Dashboard />} />
       </Routes>
     </Router>
   );
