@@ -11,9 +11,9 @@ const HeroScrollDemo = () => {
         titleComponent={
           <>
             <h1 className="text-4xl font-semibold text-black dark:text-white text-center">
-              Trade Safer and<br />
+              Develop Strategies and<br />
               <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
-                More Efficiently
+                Backtest Smarter
               </span>
             </h1>
           </>

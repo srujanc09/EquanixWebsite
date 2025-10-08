@@ -109,10 +109,10 @@ export default function ExpandableChatDemo() {
     return () => document.head.removeChild(style);
   }, []);
   const conversationLoop = [
-    { content: "Hello! How can I help you today?", sender: "ai" },
-    { content: "I need help building a chat interface for my app.", sender: "user" },
-    { content: "Perfect! I can help you create a modern chat component with real-time messaging capabilities.", sender: "ai" },
-    { content: "That sounds exactly like what I need. Thanks!", sender: "user" },
+    { content: "Hi! I'm your AI trading strategy assistant. How can I help you today?", sender: "ai" },
+    { content: "I want to create a momentum trading strategy for crypto markets.", sender: "user" },
+    { content: "Great choice! I can help you build a momentum strategy using RSI and moving averages. Would you like me to start with backtesting parameters?", sender: "ai" },
+    { content: "Yes, please show me how to optimize the lookback periods.", sender: "user" },
   ];
 
   const [messages, setMessages] = useState([conversationLoop[0]]);
@@ -176,13 +176,13 @@ export default function ExpandableChatDemo() {
             <div className="flex-1 text-base text-gray-500 relative">
               <textarea 
                 className="w-full text-lg text-gray-900 bg-transparent border-none outline-none resize-none placeholder-transparent"
-                placeholder="Type your message..."
+                placeholder="Ask about trading strategies..."
                 rows={1}
                 style={{ minHeight: '24px' }}
               />
               <div className="absolute inset-0 pointer-events-none flex items-center">
                 <span className="text-gray-500 text-lg">
-                  Type your message...
+                  Ask about trading strategies...
                   <span className="ml-1 animate-blink">|</span>
                 </span>
               </div>
@@ -200,47 +200,47 @@ export default function ExpandableChatDemo() {
         <div className="h-[600px] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-2xl border border-gray-700 flex flex-col">
           <div className="mb-6">
             <h2 className="text-3xl font-bold text-white mb-3">
-              Experience Our AI Assistant
+              AI Strategy Assistant
             </h2>
-            <div className="w-16 h-1 bg-gradient-to-r from-gray-400 to-gray-600 rounded-full"></div>
+            <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-purple-600 rounded-full"></div>
           </div>
           
           <div className="space-y-6 flex-1">
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">1</span>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Real-time Conversation</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Strategy Development</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Watch as our AI assistant engages in natural, flowing conversations with users, 
-                  demonstrating advanced language understanding and response generation.
+                  Describe your trading ideas in plain English and watch our AI transform them into 
+                  quantitative strategies with proper risk management and backtesting parameters.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">2</span>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Smart Context Awareness</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Real-time Analysis</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Our AI maintains context throughout the conversation, providing relevant and 
-                  coherent responses that build upon previous interactions.
+                  Get instant feedback on strategy performance, risk metrics, and optimization 
+                  suggestions as you refine your trading approach.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+              <div className="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">3</span>
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Interactive Interface</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Interactive Learning</h3>
                 <p className="text-gray-300 leading-relaxed">
-                  Type your own messages to see how the AI responds in real-time, 
-                  showcasing the interactive capabilities of our platform.
+                  Ask questions about market patterns, backtesting results, or strategy modifications 
+                  and receive detailed explanations tailored to your experience level.
                 </p>
               </div>
             </div>

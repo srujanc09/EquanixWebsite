@@ -9,7 +9,7 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Manrope', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   background: linear-gradient(120deg, #111 0%, #222 25%, #444 50%, #222 75%, #111 100%);
   background-size: 200% 200%;
   animation: glideGradient 12s ease-in-out infinite;
@@ -17,6 +17,8 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
+  font-weight: 400;
+  letter-spacing: -0.015em;
 }
 
 html {
@@ -155,16 +157,79 @@ html, body {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
 }
 
-.logo {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  background: linear-gradient(90deg, #fff 10%, #a7a7a7 50%, #fff 90%);
+/* Typography Improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 25%, #e8e8e8 50%, #f5f5f5 75%, #ffffff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
-  text-shadow: 0 1px 8px rgba(167,167,167,0.10), 0 1px 0 #fff;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 20px rgba(255, 255, 255, 0.1);
+}
+
+h2 {
+  font-size: 2.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.05);
+}
+
+h3 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.description {
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  line-height: 1.65;
+  color: #c5c5c5;
+  letter-spacing: -0.015em;
+}
+
+.sub-description {
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: #a8a8a8;
+  letter-spacing: -0.01em;
+}
+
+.sub-description ul li {
+  font-weight: 500;
+  color: #d0d0d0;
+  margin-bottom: 0.3rem;
+}
+
+/* Code and monospace elements */
+code, pre, .code {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  background: linear-gradient(135deg, #fff 0%, #f0f0f0 50%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 12px rgba(255, 255, 255, 0.15);
   cursor: pointer;
   transition: transform 0.18s cubic-bezier(.4,2,.6,1), text-shadow 0.18s;
   user-select: none;
@@ -249,7 +314,52 @@ html, body {
   color: #000; /* Darker text color on hover */
 }
 
-/* Main content wrapper to offset fixed navbar */
+/* Button Typography */
+.btn-get-started, .btn-signing-main, .btn-dashboard-fixed, .btn-signing {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.btn-get-started {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.btn-signing-main {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Navigation Links */
+.navbar-links a {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+/* Feature Cards Typography */
+.feature-title {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.015em;
+}
+
+.feature-description {
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #b8b8b8;
+  letter-spacing: -0.01em;
+}
 .main-content-wrapper {
   padding-top: 100px;
   min-height: 0;
@@ -466,9 +576,10 @@ html, body {
   align-items: center;
   justify-content: center;
   color: #f5f5f5;
-  font-weight: 500;
-  font-size: 1.1rem;
-  letter-spacing: 0.05em;
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
   transition: color 0.5s, background 0.5s;
   cursor: pointer;
   box-shadow: 0 0 8px rgba(80,80,80,0.08);

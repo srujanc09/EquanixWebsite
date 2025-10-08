@@ -27,43 +27,43 @@ import CandlestickChart from "./components/CandlestickChart";
 function FeaturesSection() {
   const features = [
     {
-      title: "AI-Powered Debugging",
-      description: "Automatically detects and fixes code issues in real-time.",
+      title: "AI Strategy Development",
+      description: "Create sophisticated trading strategies with natural language, no coding required.",
       icon: <IconTerminal2 className="h-6 w-6" />,
     },
     {
-      title: "Self-Learning System",
-      description: "Continuously improves by learning from your codebase patterns.",
+      title: "Advanced Backtesting",
+      description: "Test strategies against historical data with sophisticated risk metrics and analysis.",
       icon: <IconEaseInOut className="h-6 w-6" />,
     },
     {
-      title: "Security First",
-      description: "Automatically patches vulnerabilities while maintaining compliance.",
+      title: "Real-time Analysis",
+      description: "Get instant market insights and trading signals powered by advanced AI algorithms.",
       icon: <IconAdjustmentsBolt className="h-6 w-6" />,
     },
     {
-      title: "Cloud Native",
-      description: "Seamlessly integrates with your cloud infrastructure.",
+      title: "Multi-Asset Support",
+      description: "Trade stocks, crypto, forex, and other markets from a single platform.",
       icon: <IconCloud className="h-6 w-6" />,
     },
     {
-      title: "Multi-tenant Architecture",
-      description: "Scalable solution for teams of all sizes.",
+      title: "Risk Management",
+      description: "AI-powered position sizing and risk analytics to protect your portfolio.",
       icon: <IconRouteAltLeft className="h-6 w-6" />,
     },
     {
-      title: "24/7 AI Support",
-      description: "Our AI agents are always available to assist you.",
+      title: "24/7 AI Monitoring",
+      description: "Continuous market surveillance and alert system for trading opportunities.",
       icon: <IconHelp className="h-6 w-6" />,
     },
     {
-      title: "Performance Optimized",
-      description: "Keeps your applications running at peak efficiency.",
+      title: "Portfolio Optimization",
+      description: "Machine learning algorithms for optimal asset allocation and rebalancing.",
       icon: <IconCurrencyDollar className="h-6 w-6" />,
     },
     {
-      title: "Future Proof",
-      description: "Continuously evolves with the latest technologies.",
+      title: "Strategy Evolution",
+      description: "Self-improving AI that adapts to changing market conditions.",
       icon: <IconHeart className="h-6 w-6" />,
     },
   ];
@@ -73,10 +73,10 @@ function FeaturesSection() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16" data-aos="fade-up">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl text-white">
-            Equanix Features
+            AI Trading Platform
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-300">
-            Powerful capabilities to transform your development workflow
+            Advanced artificial intelligence for sophisticated trading strategies
           </p>
         </div>
         
@@ -293,23 +293,36 @@ function Home() {
 
   return (
     <main className="main-content-wrapper">
-      <div className="content" style={{ marginTop: '3.5rem' }}>
+      <div className="content" style={{ marginTop: '3.5rem', marginLeft: '50px' }}>
         <div className="tag-box" data-aos="fade-up" data-aos-delay="100">
           <div className="tag" data-aos="fade-up" data-aos-delay="200">Equanix</div>
         </div>
         <h1 data-aos="fade-up" data-aos-delay="300">
-          EMAIL FOR <br /> SIGNUPS
+          Making Quant <br /> Trading Simpler
         </h1>
         <p className="description" data-aos="fade-up" data-aos-delay="400">
-          Fix your code with security and efficiency!
+          Develop, test, and optimize your trading strategies with advanced AI - no coding required
         </p>
+        <div className="sub-description" data-aos="fade-up" data-aos-delay="450">
+          <p>Our AI platform specializes in:</p>
+          <ul>
+            <li>• Converting your trading ideas into testable strategies</li>
+            <li>• Advanced backtesting with historical market data</li>
+            <li>• Strategy optimization using ML & RL algorithms</li>
+            <li>• Comprehensive performance analytics and risk metrics</li>
+            <li>• Discovering new trading patterns and opportunities</li>
+          </ul>
+        </div>
         <div className="buttons" data-aos="fade-up" data-aos-delay="500">
-          <Link to="/docs" className="btn-get-started">Documentation &gt;</Link>
-          <Link to="/features" className="btn-signing-main">Get Started &gt;</Link>
+          <Link to="/features" className="btn-get-started">Try Platform &gt;</Link>
+          <Link to="/docs" className="btn-signing-main">Learn More &gt;</Link>
         </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '3rem', marginTop: '1.5rem' }}>
-        <div style={{ flex: '1 1 60%' }}>
+      <div className="mt-0 mb-0">
+        <FeaturesSection />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '3rem', marginTop: '1.5rem', justifyContent: 'center', marginLeft: '-320px' }}>
+        <div style={{ flex: 'none', width: 'auto' }}>
           <div
             style={{
               marginTop: '3rem',
@@ -323,9 +336,14 @@ function Home() {
           </div>
         </div>
 
-        {/* Right side chart area (moved slightly left/up and enlarged) */}
-        <div style={{ flex: '0 0 1040px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }} data-aos="fade-left" data-aos-delay="450">
-          <div className="chart-card" style={{ width: 1040, transform: 'translate(-480px, -430px)' }}>
+        {/* Right side chart area - positioned to align with text */}
+        <div style={{ flex: '0 0 1040px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', position: 'absolute', top: '200px', right: '-200px', zIndex: 10 }}>
+          <div className="chart-card" 
+            style={{ width: 1040, transform: 'translate(-280px, 0px)' }}
+            data-aos="fade-in"
+            data-aos-delay="400"
+            data-aos-duration="800"
+          >
             <CandlestickChart width={1040} height={600} />
           </div>
         </div>
@@ -333,8 +351,7 @@ function Home() {
       <div className="mt-0 mb-0 relative z-20">
         <ExpandableChatDemo />
       </div>
-      <div className="mt-0 -mt-16">
-        <FeaturesSection />
+      <div className="mt-0">
         <LogoCarousel />
       </div>
     </main>
