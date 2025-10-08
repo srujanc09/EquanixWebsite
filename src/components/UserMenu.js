@@ -47,8 +47,8 @@ export default function UserMenu() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <img 
-          src={user.avatar} 
-          alt={user.name}
+          src={user.avatar || '/example.png'} 
+          alt={user.name || 'User'}
           className="user-avatar"
         />
         <span className="user-name">{user.name}</span>

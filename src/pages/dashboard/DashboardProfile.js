@@ -7,7 +7,7 @@ export default function DashboardProfile() {
       <div className="profile-grid">
         <div className="profile-card">
           <div className="profile-meta">
-            <img src="https://via.placeholder.com/72" alt="avatar" className="profile-avatar" />
+            <img src="/example.png" alt="avatar" className="profile-avatar" />
             <div>
               <h4>Equanix User</h4>
               <p style={{ color: '#9aa4b2' }}>user@example.com</p>
