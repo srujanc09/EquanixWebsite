@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import supabase from '../lib/supabase';
 
 const AuthContext = createContext();
 
@@ -152,51 +151,38 @@ export function AuthProvider({ children }) {
   // Load user from token on app start
   useEffect(() => {
     const initAuth = async () => {
-      const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-      const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+      // Try local session first
+      try {
+        const localUser = await localRestoreSession();
+        if (localUser) {
+          setUser(localUser);
+        } else {
+          // fallback: try previous API token flow
+          const accessToken = localStorage.getItem('equanix_access_token');
+          const refreshToken = localStorage.getItem('equanix_refresh_token');
 
-      if (supabaseUrl && supabaseKey) {
-        try {
-          const { data, error } = await supabase.auth.getSession();
-          if (error) throw error;
-          if (data?.session?.user) setUser(data.session.user);
-        } catch (err) {
-          console.error('Supabase session check failed:', err);
-        }
-      } else {
-        // Try local session first
-        try {
-          const localUser = await localRestoreSession();
-          if (localUser) {
-            setUser(localUser);
-          } else {
-            // fallback: try previous API token flow
-            const accessToken = localStorage.getItem('equanix_access_token');
-            const refreshToken = localStorage.getItem('equanix_refresh_token');
-
-            if (accessToken) {
-              try {
-                const response = await apiCall('/auth/me');
-                setUser(response.data.user);
-              } catch (error) {
-                console.error('Failed to get user with stored token:', error);
-                if (refreshToken) {
-                  try {
-                    await refreshTokens();
-                  } catch (refreshError) {
-                    console.error('Failed to refresh token:', refreshError);
-                    localStorage.removeItem('equanix_access_token');
-                    localStorage.removeItem('equanix_refresh_token');
-                  }
-                } else {
+          if (accessToken) {
+            try {
+              const response = await apiCall('/auth/me');
+              setUser(response.data.user);
+            } catch (error) {
+              console.error('Failed to get user with stored token:', error);
+              if (refreshToken) {
+                try {
+                  await refreshTokens();
+                } catch (refreshError) {
+                  console.error('Failed to refresh token:', refreshError);
                   localStorage.removeItem('equanix_access_token');
+                  localStorage.removeItem('equanix_refresh_token');
                 }
+              } else {
+                localStorage.removeItem('equanix_access_token');
               }
             }
           }
-        } catch (err) {
-          console.error('Local session restore failed:', err);
         }
+      } catch (err) {
+        console.error('Local session restore failed:', err);
       }
       setLoading(false);
     };
@@ -240,21 +226,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      // If Supabase is configured, use it for auth
-      const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-      const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        if (error) throw error;
-        setUser(data.user);
-        return { success: true, user: data.user };
-      }
-
-      // Fallback to API-based auth, or local auth if API fails
+      // Use API-based auth, or local auth if API fails
       try {
         const response = await apiCall('/auth/login', {
           method: 'POST',
@@ -289,22 +261,6 @@ export function AuthProvider({ children }) {
   const signup = async (email, password, name) => {
     setLoading(true);
     try {
-      const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-      const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
-        // Use Supabase signUp
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { name } }
-        });
-        if (error) throw error;
-        // If confirmStep required, data.user may be null until confirmation
-        setUser(data.user || null);
-        return { success: true, user: data.user };
-      }
-
       try {
         const response = await apiCall('/auth/register', {
           method: 'POST',
@@ -338,28 +294,20 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-      const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
-        const { error } = await supabase.auth.signOut();
-        if (error) console.error('Supabase signOut error:', error);
-      } else {
-        try {
-          const refreshToken = localStorage.getItem('equanix_refresh_token');
-          if (refreshToken) {
-            await apiCall('/auth/logout', {
-              method: 'POST',
-              body: { refreshToken }
-            });
-          } else {
-            // If API logout not available, sign out local session
-            await localSignOut();
-          }
-        } catch (err) {
-          // API failed — ensure local signout
+      try {
+        const refreshToken = localStorage.getItem('equanix_refresh_token');
+        if (refreshToken) {
+          await apiCall('/auth/logout', {
+            method: 'POST',
+            body: { refreshToken }
+          });
+        } else {
+          // If API logout not available, sign out local session
           await localSignOut();
         }
+      } catch (err) {
+        // API failed — ensure local signout
+        await localSignOut();
       }
     } catch (error) {
       console.error('Logout API call failed:', error);
@@ -374,20 +322,6 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (updates) => {
     try {
-      const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-      const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
-        const userId = user?.id;
-        if (!userId) throw new Error('No authenticated user');
-
-        const { data, error } = await supabase.from('profiles').upsert({ id: userId, ...updates });
-        if (error) throw error;
-
-        // Merge profile updates into user
-        setUser(prev => ({ ...prev, ...updates }));
-        return { success: true, user: { ...user, ...updates } };
-      }
       try {
         const response = await apiCall('/users/profile', {
           method: 'PUT',
