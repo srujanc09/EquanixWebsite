@@ -2,27 +2,24 @@ import React from 'react';
 import { Link, Routes, Route, Outlet } from 'react-router-dom';
 import {
   IconHome,
-  IconUser,
-  IconSettings,
+  IconChartLine,
   IconChartBar,
-  IconBell,
-  IconFiles,
+  IconCode,
+  IconRobot,
   IconLogout
 } from "@tabler/icons-react";
-import DashboardProfile from './dashboard/DashboardProfile';
-import DashboardNotifications from './dashboard/DashboardNotifications';
-import DashboardAnalytics from './dashboard/DashboardAnalytics';
-import DashboardProjects from './dashboard/DashboardProjects';
-import DashboardSettings from './dashboard/DashboardSettings';
+import DashboardOptimization from './dashboard/DashboardOptimization';
+import DashboardBacktesting from './dashboard/DashboardBacktesting';
+import DashboardStratDeveloper from './dashboard/DashboardStratDeveloper';
+import DashboardAgenticHandling from './dashboard/DashboardAgenticHandling';
 
 export default function Dashboard() {
   const sidebarItems = [
-    { icon: <IconHome className="h-5 w-5" />, label: 'Dashboard', path: '/dashboard', active: true },
-    { icon: <IconChartBar className="h-5 w-5" />, label: 'Analytics', path: '/dashboard/analytics' },
-    { icon: <IconFiles className="h-5 w-5" />, label: 'Projects', path: '/dashboard/projects' },
-    { icon: <IconUser className="h-5 w-5" />, label: 'Profile', path: '/dashboard/profile' },
-    { icon: <IconBell className="h-5 w-5" />, label: 'Notifications', path: '/dashboard/notifications' },
-    { icon: <IconSettings className="h-5 w-5" />, label: 'Settings', path: '/dashboard/settings' },
+    { icon: <IconHome className="h-5 w-5" />, label: 'Overview', path: '/dashboard', active: true },
+    { icon: <IconChartLine className="h-5 w-5" />, label: 'Optimization', path: '/dashboard/optimization' },
+    { icon: <IconChartBar className="h-5 w-5" />, label: 'Backtesting', path: '/dashboard/backtesting' },
+    { icon: <IconCode className="h-5 w-5" />, label: 'Strat Developer', path: '/dashboard/strat-developer' },
+    { icon: <IconRobot className="h-5 w-5" />, label: 'Agentic Handling', path: '/dashboard/agentic-handling' },
   ];
 
   return (
@@ -72,47 +69,46 @@ export default function Dashboard() {
               <>
                 <div className="dashboard-cards">
                   <div className="dashboard-card">
-                    <h3>Active Projects</h3>
-                    <p className="dashboard-stat">12</p>
+                    <h3>Active Strategies</h3>
+                    <p className="dashboard-stat">8</p>
                   </div>
                   <div className="dashboard-card">
-                    <h3>Total Users</h3>
-                    <p className="dashboard-stat">1,234</p>
+                    <h3>Portfolio Value</h3>
+                    <p className="dashboard-stat">$127,340</p>
                   </div>
                   <div className="dashboard-card">
-                    <h3>System Health</h3>
-                    <p className="dashboard-stat">99.9%</p>
+                    <h3>Today's P&L</h3>
+                    <p className="dashboard-stat">+$2,140</p>
                   </div>
                   <div className="dashboard-card">
-                    <h3>API Calls</h3>
-                    <p className="dashboard-stat">45,678</p>
+                    <h3>Win Rate</h3>
+                    <p className="dashboard-stat">73.2%</p>
                   </div>
                 </div>
 
                 <div className="dashboard-section">
-                  <h3>Recent Activity</h3>
+                  <h3>Recent Trading Activity</h3>
                   <div className="activity-list">
                     <div className="activity-item">
-                      <span>Project "WebApp" deployed successfully</span>
+                      <span>Strategy "MomentumBot" executed buy order for AAPL</span>
                       <span className="activity-time">2 minutes ago</span>
                     </div>
                     <div className="activity-item">
-                      <span>New user registered</span>
-                      <span className="activity-time">5 minutes ago</span>
+                      <span>Backtest completed for "MeanReversion" strategy</span>
+                      <span className="activity-time">15 minutes ago</span>
                     </div>
                     <div className="activity-item">
-                      <span>System backup completed</span>
+                      <span>Portfolio optimization updated risk parameters</span>
                       <span className="activity-time">1 hour ago</span>
                     </div>
                   </div>
                 </div>
               </>
             } />
-            <Route path="analytics" element={<DashboardAnalytics />} />
-            <Route path="projects" element={<DashboardProjects />} />
-            <Route path="profile" element={<DashboardProfile />} />
-            <Route path="notifications" element={<DashboardNotifications />} />
-            <Route path="settings" element={<DashboardSettings />} />
+            <Route path="optimization" element={<DashboardOptimization />} />
+            <Route path="backtesting" element={<DashboardBacktesting />} />
+            <Route path="strat-developer" element={<DashboardStratDeveloper />} />
+            <Route path="agentic-handling" element={<DashboardAgenticHandling />} />
           </Routes>
 
           {/* nested content outlet for the dashboard pages */}

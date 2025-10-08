@@ -28,7 +28,7 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', process.env.CLIENT_URL].filter(Boolean),
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', process.env.CLIENT_URL].filter(Boolean),
   credentials: true,
   optionsSuccessStatus: 200
 }));
