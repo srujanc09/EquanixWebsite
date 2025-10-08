@@ -11,17 +11,18 @@ const HeroScrollDemo = () => {
         titleComponent={
           <>
             <h1 className="text-4xl font-semibold text-black dark:text-white text-center">
-              Develop Strategies and<br />
+              Trade Safer and<br />
               <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
-                Backtest Smarter
+                More Efficiently
               </span>
             </h1>
           </>
         }
       >
         <img
-          src="https://ui.aceternity.com/_next/image?url=%2Flinear.webp&w=3840&q=75" //change to my image 
+          src="/example.png" // change image here
           alt="hero"
+          loading="lazy"
           height={720}
           width={1400}
           className="mx-auto rounded-2xl object-cover h-full object-left-top"
