@@ -2,13 +2,18 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HeroScrollDemo from './HeroScrollDemo';
 import Features from './pages/Features';
 import Docs from './pages/Docs';
 import About from './pages/About';
 import Resources from './pages/Resources';
 import Dashboard from './pages/Dashboard';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import AuthModal from './components/AuthModal';
+import UserMenu from './components/UserMenu';
+import ProtectedRoute from './components/ProtectedRoute';
+import AuthRequiredPage from './components/AuthRequiredPage';
 import './style.css';
 import {
   IconAdjustmentsBolt,
@@ -222,11 +227,13 @@ function NavbarWrapper() {
 
 function Navbar() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const header = document.querySelector('.navbar-container');
-      if (window.scrollY > 10) {
+      if (window.scrollY > 100) {
         header.classList.add('navbar-scrolled');
       } else {
         header.classList.remove('navbar-scrolled');
@@ -238,25 +245,48 @@ function Navbar() {
   }, []);
 
   return (
-    <header className="navbar-container">
-      <div className="navbar-content container">
-        <h1
-          data-aos="fade-down"
-          data-aos-delay="0"
-          className="logo"
-          onClick={() => navigate('/')}
-        >
-          Equanix
-        </h1>
+    <>
+      <header className="navbar-container">
+        <div className="navbar-content container">
+          <h1
+            data-aos="fade-down"
+            data-aos-delay="0"
+            className="logo"
+            onClick={() => navigate('/')}
+          >
+            Equanix
+          </h1>
 
-        <nav className="navbar-links">
-          <Link to="/about" data-aos="fade-down" data-aos-delay="200">ABOUT US</Link>
-          <Link to="/features" data-aos="fade-down" data-aos-delay="400">FEATURES</Link>
-          <Link to="/resources" data-aos="fade-down" data-aos-delay="600">RESOURCES</Link>
-          <Link to="/docs" data-aos="fade-down" data-aos-delay="800">DOCUMENTATION</Link>
-        </nav>
-      </div>
-    </header>
+          <nav className="navbar-links">
+            <Link to="/about" data-aos="fade-down" data-aos-delay="200">ABOUT US</Link>
+            <Link to="/features" data-aos="fade-down" data-aos-delay="400">FEATURES</Link>
+            <Link to="/resources" data-aos="fade-down" data-aos-delay="600">RESOURCES</Link>
+            <Link to="/docs" data-aos="fade-down" data-aos-delay="800">DOCUMENTATION</Link>
+          </nav>
+
+          <div className="navbar-auth">
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button 
+                className="btn-login"
+                onClick={() => setShowAuthModal(true)}
+                data-aos="fade-down" 
+                data-aos-delay="1000"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode="login"
+      />
+    </>
   );
 }
 
@@ -264,24 +294,42 @@ function Navbar() {
 function DashboardButton() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
-  // hide the fixed dashboard button when on profile or notifications tabs
+  // hide the fixed dashboard button when on dashboard or auth-required pages
   if (location && location.pathname) {
     const p = location.pathname;
-    if (p.startsWith('/dashboard/profile') || p.startsWith('/dashboard/notifications')) {
+    if (p.startsWith('/dashboard')) {
       return null;
     }
   }
 
+  const handleDashboardClick = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
   return (
-    <button
-      onClick={() => navigate('/dashboard')}
-      className="btn-dashboard-fixed"
-      data-aos="fade-down"
-      data-aos-delay="1000"
-    >
-      Dashboard
-    </button>
+    <>
+      <button
+        onClick={handleDashboardClick}
+        className="btn-dashboard-fixed"
+        data-aos="fade-down"
+        data-aos-delay="1000"
+      >
+        {isAuthenticated ? 'Dashboard' : 'Get Started'}
+      </button>
+
+      <AuthModal 
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        initialMode="signup"
+      />
+    </>
   );
 }
 
@@ -314,8 +362,8 @@ function Home() {
           </ul>
         </div>
         <div className="buttons" data-aos="fade-up" data-aos-delay="500">
-          <Link to="/features" className="btn-get-started">Try Platform &gt;</Link>
-          <Link to="/docs" className="btn-signing-main">Learn More &gt;</Link>
+          <Link to="/dashboard" className="btn-get-started">Launch Dashboard &gt;</Link>
+          <Link to="/features" className="btn-signing-main">Learn More &gt;</Link>
         </div>
       </div>
       <div className="mt-0 mb-0">
@@ -370,18 +418,28 @@ export default function App() {
   }, []);
 
   return (
-    <Router>
-      <NavbarWrapper />
-      <DashboardButton />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<div className="main-content-wrapper"><About /></div>} />
-        <Route path="/features" element={<div className="main-content-wrapper"><Features /></div>} />
-        <Route path="/docs" element={<div className="main-content-wrapper"><Docs /></div>} />
-        <Route path="/resources" element={<div className="main-content-wrapper"><Resources /></div>} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/*" element={<Dashboard />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <NavbarWrapper />
+        <DashboardButton />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<div className="main-content-wrapper"><About /></div>} />
+          <Route path="/features" element={<div className="main-content-wrapper"><Features /></div>} />
+          <Route path="/docs" element={<div className="main-content-wrapper"><Docs /></div>} />
+          <Route path="/resources" element={<div className="main-content-wrapper"><Resources /></div>} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute fallback={<AuthRequiredPage />}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/*" element={
+            <ProtectedRoute fallback={<AuthRequiredPage />}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
