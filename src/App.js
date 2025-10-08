@@ -387,7 +387,7 @@ function Home() {
         {/* Right side chart area - positioned to align with text (narrower and nudged right) */}
         <div style={{ flex: '0 0 860px', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', position: 'absolute', top: '200px', right: '24px', zIndex: 10 }}>
           <div className="chart-card" 
-            style={{ width: 860, transform: 'translate(-3px, 0px)' }}
+            style={{ width: 860, transform: 'translate(-3px, -30px)' }}
             data-aos="fade-in"
             data-aos-delay="400"
             data-aos-duration="800"
