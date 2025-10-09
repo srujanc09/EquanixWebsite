@@ -21,17 +21,11 @@ export default function About() {
       desc: 'Passionate about user-centered design, smooth animations, and visual polish.'
     },
     {
-      name: 'Srikar Chilakapati',
-      role: 'Product Manager',
-      image: 'https://randomuser.me/api/portraits/women/68.jpg',
-      desc: 'Brings vision, clarity, and team alignment to every feature we build.'
-    },
-    {
-      name: 'Shankar Subramanian',
-      role: 'Security Engineer',
-      image: 'https://randomuser.me/api/portraits/men/76.jpg',
-      desc: 'Focuses on protecting user data and ensuring platform resilience.'
-    },
+      name: 'Anish Talla',
+      role: 'UI/UX Developer',
+      image: 'https://randomuser.me/api/portraits/men/68.jpg',
+      desc: 'Designs intuitive interfaces and prototypes, focusing on accessibility and delightful user journeys.'
+    }
   ];
 
   return (
@@ -42,7 +36,7 @@ export default function About() {
       <p data-aos="fade-up" data-aos-delay="100" data-aos-duration="1000" className="about-desc">
         We're a passionate team of developers, designers, and engineers working to make AI smarter and more secure.
       </p>
-      <div className="team-grid">
+      <div className="team-grid team-grid-centered">
         {team.map((person, index) => (
           <div
             key={index}
