@@ -53,8 +53,118 @@ const auth = async (req, res, next) => {
                 await newUser.save();
                 user = newUser;
               }
+            } else if (supabaseAdmin) {
+              // Mongo isn't connected — persist/read profile in Supabase Postgres (profiles table) if possible
+              try {
+                const profileRow = {
+                  id: supaUser.id,
+                  email: supaUser.email.toLowerCase(),
+                  name: supaUser.user_metadata?.name || supaUser.email.split('@')[0],
+                  avatar: supaUser.user_metadata?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(supaUser.user_metadata?.name || supaUser.email.split('@')[0])}&background=667eea&color=fff`,
+                  is_email_verified: !!supaUser.email_confirmed_at,
+                  last_login: new Date().toISOString()
+                };
+
+                // Try to upsert into a 'profiles' table (common Supabase pattern). If table doesn't exist, ignore and fall back.
+                const { data: upsertData, error: upsertErr } = await supabaseAdmin.from('profiles').upsert(profileRow, { returning: 'representation' });
+
+                let returnedProfile = null;
+                if (!upsertErr && upsertData && upsertData.length) {
+                  returnedProfile = upsertData[0];
+                } else {
+                  // fallback: try selecting the profile
+                  const { data: selData, error: selErr } = await supabaseAdmin.from('profiles').select('*').eq('id', supaUser.id).limit(1).maybeSingle();
+                  if (!selErr && selData) returnedProfile = selData;
+                }
+
+                const fullProfile = returnedProfile ? {
+                  id: returnedProfile.id || supaUser.id,
+                  name: returnedProfile.name || supaUser.user_metadata?.name || supaUser.email.split('@')[0],
+                  email: returnedProfile.email || supaUser.email,
+                  avatar: returnedProfile.avatar || supaUser.user_metadata?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(supaUser.user_metadata?.name || supaUser.email.split('@')[0])}&background=667eea&color=fff`,
+                  subscription: returnedProfile.subscription || 'free',
+                  profile: returnedProfile.profile || { preferences: { theme: 'dark', notifications: { email: true, push: true, trading: true }, defaultCurrency: 'USD' } },
+                  tradingStats: returnedProfile.tradingStats || { totalStrategies: 0, totalBacktests: 0, winRate: 0, totalPnL: 0, lastActiveDate: new Date() },
+                  isEmailVerified: returnedProfile.is_email_verified || !!supaUser.email_confirmed_at,
+                  createdAt: returnedProfile.created_at || new Date(),
+                  lastLogin: returnedProfile.last_login || new Date()
+                } : {
+                  // worst-case: build from supaUser
+                  id: supaUser.id,
+                  name: supaUser.user_metadata?.name || supaUser.email.split('@')[0],
+                  email: supaUser.email,
+                  avatar: supaUser.user_metadata?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(supaUser.user_metadata?.name || supaUser.email.split('@')[0])}&background=667eea&color=fff`,
+                  subscription: 'free',
+                  profile: { preferences: { theme: 'dark', notifications: { email: true, push: true, trading: true }, defaultCurrency: 'USD' } },
+                  tradingStats: { totalStrategies: 0, totalBacktests: 0, winRate: 0, totalPnL: 0, lastActiveDate: new Date() },
+                  isEmailVerified: !!supaUser.email_confirmed_at,
+                  createdAt: new Date(),
+                  lastLogin: new Date()
+                };
+
+                // Create a lightweight user object that routes can use and which persists to Supabase on save()
+                user = {
+                  _id: supaUser.id,
+                  isActive: true,
+                  fullProfile,
+                  updateLastLogin: async function() {
+                    this.fullProfile.lastLogin = new Date();
+                    try {
+                      await supabaseAdmin.from('profiles').upsert({ id: this._id, last_login: this.fullProfile.lastLogin });
+                    } catch (e) {
+                      /* ignore */
+                    }
+                    return this;
+                  },
+                  removeRefreshToken: async function() { return this; },
+                  save: async function() {
+                    // Map fields we know to the profiles table
+                    const payload = {
+                      id: this._id,
+                      name: this.fullProfile.name,
+                      email: this.fullProfile.email,
+                      avatar: this.fullProfile.avatar,
+                      subscription: this.fullProfile.subscription,
+                      profile: this.fullProfile.profile,
+                      tradingStats: this.fullProfile.tradingStats,
+                      is_email_verified: this.fullProfile.isEmailVerified,
+                      last_login: this.fullProfile.lastLogin || new Date()
+                    };
+                    try {
+                      await supabaseAdmin.from('profiles').upsert(payload);
+                    } catch (e) {
+                      // ignore persistence errors in dev
+                    }
+                    return this;
+                  }
+                };
+              } catch (err2) {
+                console.debug('Supabase profile upsert/select error:', err2?.message || err2);
+                // fallback to in-memory object
+                const fullProfile = {
+                  id: supaUser.id,
+                  name: supaUser.user_metadata?.name || supaUser.email.split('@')[0],
+                  email: supaUser.email,
+                  avatar: supaUser.user_metadata?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(supaUser.user_metadata?.name || supaUser.email.split('@')[0])}&background=667eea&color=fff`,
+                  subscription: 'free',
+                  profile: { preferences: { theme: 'dark', notifications: { email: true, push: true, trading: true }, defaultCurrency: 'USD' } },
+                  tradingStats: { totalStrategies: 0, totalBacktests: 0, winRate: 0, totalPnL: 0, lastActiveDate: new Date() },
+                  isEmailVerified: !!supaUser.email_confirmed_at,
+                  createdAt: new Date(),
+                  lastLogin: new Date()
+                };
+
+                user = {
+                  _id: supaUser.id,
+                  isActive: true,
+                  fullProfile,
+                  updateLastLogin: async function() { this.fullProfile.lastLogin = new Date(); return this; },
+                  removeRefreshToken: async function() { return this; },
+                  save: async function() { return this; }
+                };
+              }
             } else {
-              // Mongo isn't connected — create an in-memory user shape that routes expect
+              // fallback if no supabaseAdmin: create an in-memory user shape that routes expect
               const fullProfile = {
                 id: supaUser.id,
                 name: supaUser.user_metadata?.name || supaUser.email.split('@')[0],
