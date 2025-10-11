@@ -53,8 +53,20 @@ mongoose.connect(process.env.MONGODB_URI, {
   isMongoConnected = false;
 });
 
-// Routes - Use mock auth for now since MongoDB isn't connected
-app.use('/api/auth', authMockRoutes);
+// Supabase admin hint
+if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.log('📝 Supabase admin client available (SUPABASE_SERVICE_ROLE_KEY detected)');
+} else {
+  console.log('🛑 Supabase admin client not configured');
+}
+
+// Routes - prefer real auth if MongoDB is connected, otherwise use mock auth
+if (isMongoConnected) {
+  app.use('/api/auth', authRoutes);
+} else {
+  app.use('/api/auth', authMockRoutes);
+}
+
 app.use('/api/users', userRoutes);
 app.use('/api/trading', tradingRoutes);
 

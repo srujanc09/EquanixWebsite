@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import supabase from '../lib/supabase';
 
 const AuthContext = createContext();
 
 // API base URL - change this to your backend URL
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
+// Supabase feature flag: prefer Supabase auth when env vars are present
+const USE_SUPABASE = Boolean(process.env.REACT_APP_SUPABASE_URL && process.env.REACT_APP_SUPABASE_ANON_KEY);
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -151,36 +155,54 @@ export function AuthProvider({ children }) {
   // Load user from token on app start
   useEffect(() => {
     const initAuth = async () => {
-      // Try local session first
+      // If Supabase is configured, try restoring Supabase session (this persists across devices)
       try {
+        if (USE_SUPABASE) {
+          try {
+            const sessionResp = await supabase.auth.getSession();
+            const session = sessionResp?.data?.session;
+            const supaUser = session?.user || sessionResp?.data?.user || null;
+            if (supaUser) {
+              // keep a small shape consistent with previous API user expectations
+              setUser({ id: supaUser.id, email: supaUser.email, name: supaUser.user_metadata?.name || '' });
+            }
+          } catch (sErr) {
+            console.debug('Supabase session restore failed:', sErr?.message || sErr);
+          }
+        }
+
+        // Try local session first (fallback)
         const localUser = await localRestoreSession();
         if (localUser) {
           setUser(localUser);
-        } else {
-          // fallback: try previous API token flow
-          const accessToken = localStorage.getItem('equanix_access_token');
-          const refreshToken = localStorage.getItem('equanix_refresh_token');
+          setLoading(false);
+          return;
+        }
 
-          if (accessToken) {
-            try {
-              const response = await apiCall('/auth/me');
-              setUser(response.data.user);
-            } catch (error) {
-              console.error('Failed to get user with stored token:', error);
-              if (refreshToken) {
-                try {
-                  await refreshTokens();
-                } catch (refreshError) {
-                  console.error('Failed to refresh token:', refreshError);
-                  localStorage.removeItem('equanix_access_token');
-                  localStorage.removeItem('equanix_refresh_token');
-                }
-              } else {
+        // fallback: try previous API token flow
+        const accessToken = localStorage.getItem('equanix_access_token');
+        const refreshToken = localStorage.getItem('equanix_refresh_token');
+
+        if (accessToken) {
+          try {
+            const response = await apiCall('/auth/me');
+            setUser(response.data.user);
+          } catch (error) {
+            console.error('Failed to get user with stored token:', error);
+            if (refreshToken) {
+              try {
+                await refreshTokens();
+              } catch (refreshError) {
+                console.error('Failed to refresh token:', refreshError);
                 localStorage.removeItem('equanix_access_token');
+                localStorage.removeItem('equanix_refresh_token');
               }
+            } else {
+              localStorage.removeItem('equanix_access_token');
             }
           }
         }
+
       } catch (err) {
         console.error('Local session restore failed:', err);
       }
@@ -226,6 +248,27 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     setLoading(true);
     try {
+      // If Supabase is enabled, use it first (persists across devices)
+      if (USE_SUPABASE) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          const session = data?.session;
+          const supaUser = data?.user || session?.user;
+          if (!supaUser) throw new Error('Failed to retrieve Supabase user');
+
+          // Persist tokens in localStorage so API calls can use them
+          if (session?.access_token) localStorage.setItem('equanix_access_token', session.access_token);
+          if (session?.refresh_token) localStorage.setItem('equanix_refresh_token', session.refresh_token);
+
+          setUser({ id: supaUser.id, email: supaUser.email, name: supaUser.user_metadata?.name || '' });
+          return { success: true, user: supaUser };
+        } catch (supaErr) {
+          // Fall through to API/local flows if Supabase sign-in fails
+          console.warn('Supabase login failed, falling back:', supaErr?.message || supaErr);
+        }
+      }
+
       // Use API-based auth, or local auth if API fails
       try {
         const response = await apiCall('/auth/login', {
@@ -261,6 +304,25 @@ export function AuthProvider({ children }) {
   const signup = async (email, password, name) => {
     setLoading(true);
     try {
+      // If Supabase is enabled, use it first (persists across devices)
+      if (USE_SUPABASE) {
+        try {
+          const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
+          if (error) throw error;
+          const session = data?.session;
+          const supaUser = data?.user || session?.user;
+
+          // Persist tokens if returned (some setups require email confirmation and won't return a session)
+          if (session?.access_token) localStorage.setItem('equanix_access_token', session.access_token);
+          if (session?.refresh_token) localStorage.setItem('equanix_refresh_token', session.refresh_token);
+
+          setUser({ id: supaUser?.id, email: supaUser?.email, name: supaUser?.user_metadata?.name || name || '' });
+          return { success: true, user: supaUser };
+        } catch (supaErr) {
+          console.warn('Supabase signup failed, falling back:', supaErr?.message || supaErr);
+        }
+      }
+
       try {
         const response = await apiCall('/auth/register', {
           method: 'POST',
@@ -294,6 +356,15 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
+      // If Supabase is enabled, sign out there first
+      if (USE_SUPABASE) {
+        try {
+          await supabase.auth.signOut();
+        } catch (supaErr) {
+          console.warn('Supabase signOut failed:', supaErr?.message || supaErr);
+        }
+      }
+
       try {
         const refreshToken = localStorage.getItem('equanix_refresh_token');
         if (refreshToken) {

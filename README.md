@@ -1,3 +1,69 @@
+# Equanix Website
+
+This is the Equanix website project, built with React and modern UI components.
+ 
+Quick start (one command)
+-------------------------
+After cloning the repository, run the following from the project root to install dependencies and start both frontend and backend in development:
+
+```bash
+npm install
+npm start
+```
+
+What this does:
+- `npm install` will install root dependencies and run a `postinstall` step that installs backend dependencies.
+- `npm start` runs a single command which starts both the backend (nodemon) and the CRA frontend concurrently.
+
+Environment files
+-----------------
+- Add server secrets to `backend/.env` (this file is ignored by git). Example fields you will typically set:
+
+```
+PORT=5001
+MONGODB_URI=mongodb://localhost:27017/equanix_trading
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+CLIENT_URL=http://localhost:3000
+```
+
+- For frontend Supabase integration, add `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` to a `.env.local` in the repo root.
+
+Security note: never commit service role keys or other secrets to GitHub. The repository's `.gitignore` already ignores `backend/.env` and other env files.
+## Development
+
+To get started with development, follow these steps:
+ - Start the backend: `cd backend && npm install && npm run dev`
+ - Start the frontend: `npm install && npm start`
+
+## Enabling device-persistent email/password authentication (recommended: Supabase)
+
+The app includes multiple auth options. The easiest, most reliable way to allow users to sign in with email/password from any device is to use Supabase Auth (hosted). The frontend already contains Supabase integration and will prefer Supabase when the environment variables below are set.
+
+1. Create a free Supabase project at https://app.supabase.com
+2. In your Supabase project settings, copy the Project URL and the anon/public API key.
+3. In your frontend project, create a `.env.local` file with:
+
+```
+REACT_APP_SUPABASE_URL=https://your-project-ref.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=your-anon-key
+REACT_APP_API_URL=http://localhost:5001/api   # optional: keeps existing backend API
+```
+
+4. Start the frontend (`npm start`). The Auth UI in the app will now use Supabase for sign-up, sign-in, and sign-out. Sessions persisted by Supabase will work across devices and browsers.
+
+Notes and fallbacks:
+- If Supabase env vars are not set, the app falls back to the backend API (`/api/auth`) and, if that isn't available, to a local in-browser store (for demos).
+- The backend also supports MongoDB + JWT (see `backend/`); if you prefer keeping auth on your own server, configure `MONGODB_URI` and the JWT env vars and switch routes in `backend/server.js` from the mock auth to the real auth router.
+- Supabase handles email verification, password resets, and secure session management for you, which reduces implementation and maintenance burden.
+
+Testing across devices:
+- Sign up with an email and password in one browser/device. Supabase will persist the session.
+- Close the browser, open the same site on another device, and the user can sign in there with the same credentials. If you've enabled email confirmations in Supabase, ensure the user confirms their email if required by your Supabase settings.
+
+If you'd like, I can also wire the backend to validate Supabase JWTs on protected routes or fully migrate auth to Supabase on the backend — tell me which you'd prefer and I will implement it.
 # EquanixWebsite
 
 This is the Equanix website project, built with React and modern UI components.

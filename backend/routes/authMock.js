@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { generateTokens } = require('../utils/jwt');
+const { generateTokens, verifyRefreshToken, getRefreshTokenExpiration } = require('../utils/jwt');
 const { findUserByEmail, findUserById, addUser } = require('../utils/mockDb');
 const { authMock } = require('../middleware/authMock');
 
@@ -52,6 +52,13 @@ router.post('/register', async (req, res) => {
 
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user._id);
+
+    // Save refresh token in mock user
+    try {
+      user.refreshTokens.push({ token: refreshToken, expiresAt: new Date(Date.now() + getRefreshTokenExpiration()) });
+    } catch (e) {
+      // ignore
+    }
 
     res.status(201).json({
       success: true,
@@ -110,6 +117,12 @@ router.post('/login', async (req, res) => {
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user._id);
 
+    // Save refresh token in mock user
+    try {
+      user.refreshTokens.push({ token: refreshToken, expiresAt: new Date(Date.now() + getRefreshTokenExpiration()) });
+    } catch (e) {
+      // ignore
+    }
     res.json({
       success: true,
       message: 'Login successful',
@@ -159,6 +172,60 @@ router.post('/logout', (req, res) => {
     success: true,
     message: 'Logged out successfully'
   });
+});
+
+// @route   POST /api/auth/refresh
+// @desc    Refresh access token (Mock version)
+// @access  Public
+router.post('/refresh', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'Refresh token is required' });
+    }
+
+    // Verify refresh token
+    let decoded;
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch (err) {
+      return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+    }
+
+    const user = findUserById(decoded.userId);
+    if (!user || !user.isActive) {
+      return res.status(401).json({ success: false, message: 'Invalid refresh token' });
+    }
+
+    // Check if refresh token exists and isn't expired
+    const tokenExists = user.refreshTokens.some(t => t.token === refreshToken && new Date(t.expiresAt) > new Date());
+    if (!tokenExists) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired refresh token' });
+    }
+
+    // Generate new tokens
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(user._id);
+
+    // Replace stored refresh token
+    user.refreshTokens = user.refreshTokens.filter(t => t.token !== refreshToken);
+    user.refreshTokens.push({ token: newRefreshToken, expiresAt: new Date(Date.now() + getRefreshTokenExpiration()) });
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        tokens: {
+          accessToken,
+          refreshToken: newRefreshToken,
+          expiresIn: process.env.JWT_EXPIRE || '24h'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Mock refresh token error:', error);
+    res.status(401).json({ success: false, message: 'Invalid refresh token' });
+  }
 });
 
 module.exports = router;
