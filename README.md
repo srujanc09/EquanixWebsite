@@ -31,6 +31,16 @@ CLIENT_URL=http://localhost:3000
 
 - For frontend Supabase integration, add `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` to a `.env.local` in the repo root.
 
+Quick teammate setup (Windows PowerShell)
+----------------------------------------
+We've added `backend/.env.example` and a small helper `scripts/setup-dev.ps1` to make on-boarding easier. From the project root run:
+
+```powershell
+.\scripts\setup-dev.ps1
+```
+
+This will copy `backend/.env.example` to `backend/.env` and open it in Notepad so your coworker can paste real API keys locally. Do NOT commit `backend/.env`.
+
 Security note: never commit service role keys or other secrets to GitHub. The repository's `.gitignore` already ignores `backend/.env` and other env files.
 ## Development
 
