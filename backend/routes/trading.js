@@ -1,5 +1,18 @@
 const express = require('express');
 const { auth, optionalAuth, requireSubscription } = require('../middleware/auth');
+const { createClient } = require('@supabase/supabase-js');
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+let supabaseAdmin = null;
+if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+  try {
+    supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    console.log('Supabase admin client initialized in trading routes');
+  } catch (e) {
+    console.error('Failed to initialize Supabase admin in trading routes', e?.message || e);
+  }
+}
 
 const router = express.Router();
 const { spawn } = require('child_process');
@@ -417,6 +430,48 @@ router.post('/generate', optionalAuth, async (req, res) => {
   } catch (error) {
     console.error('Generate strategy error:', error);
     res.status(500).json({ success: false, message: 'Error generating strategy' });
+  }
+});
+
+// @route POST /api/trading/strategies/persist
+// @desc Persist a strategy to Supabase (if configured) or local file storage fallback
+// @access Private
+router.post('/strategies/persist', auth, async (req, res) => {
+  try {
+    const payload = req.body;
+
+    if (!payload || !payload.code) {
+      return res.status(400).json({ success: false, message: 'Invalid strategy payload' });
+    }
+
+    // Try Supabase upsert if admin client is available
+    if (supabaseAdmin) {
+      try {
+        const row = {
+          id: payload.id || undefined,
+          owner_id: req.user && (req.user._id || req.user.id) ? (req.user._id || req.user.id) : null,
+          name: payload.name || null,
+          description: payload.description || null,
+          code: payload.code,
+          metadata: payload.metadata || null,
+          created_at: payload.created_at || new Date().toISOString()
+        };
+
+        const { data, error } = await supabaseAdmin.from('strategies').upsert(row).select().maybeSingle();
+        if (error) throw error;
+        return res.json({ success: true, data: { strategy: data }, message: 'persisted to supabase' });
+      } catch (e) {
+        console.error('Supabase persist error:', e?.message || e);
+        // fall through to local persist
+      }
+    }
+
+    // Local fallback
+    const strategy = saveLocalStrategy(Object.assign({}, payload, { owner: req.user ? (req.user._id || req.user.id) : null }));
+    return res.json({ success: true, data: { strategy }, message: 'persisted locally' });
+  } catch (error) {
+    console.error('Persist strategy error:', error);
+    res.status(500).json({ success: false, message: 'Error persisting strategy' });
   }
 });
 

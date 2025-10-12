@@ -6,6 +6,30 @@ export default function DashboardStrategies() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
+    async function load() {
+      // Prefer localStorage cached strategies so the page works without backend
+      try {
+        const ls = window.localStorage.getItem('strategies');
+        if (ls) {
+          const parsed = JSON.parse(ls);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setStrategies(parsed);
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore parse errors and fall through to backend fetch
+      }
+
+      try {
+        const resp = await fetch('/api/trading/strategies');
+        if (!resp.ok) return;
+        const json = await resp.json();
+        if (json?.data?.strategies) setStrategies(json.data.strategies);
+      } catch (e) {
+        console.error('load strategies error', e);
+      }
+    }
     load();
   }, []);
 
