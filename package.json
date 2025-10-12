@@ -46,6 +46,7 @@
   },
   "scripts": {
     "start": "concurrently \"npm:server\" \"npm:client\"",
+  "dev": "concurrently \"npm:server\" \"npm:client\"",
     "server": "cd backend && npm run dev",
     "client": "react-scripts start",
     "bootstrap": "cd backend && npm install",

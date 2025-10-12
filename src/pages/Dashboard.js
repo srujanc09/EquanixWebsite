@@ -12,6 +12,7 @@ import DashboardOptimization from './dashboard/DashboardOptimization';
 import DashboardBacktesting from './dashboard/DashboardBacktesting';
 import DashboardStratDeveloper from './dashboard/DashboardStratDeveloper';
 import DashboardAgenticHandling from './dashboard/DashboardAgenticHandling';
+import DashboardStrategies from './dashboard/DashboardStrategies';
 
 export default function Dashboard() {
   const sidebarItems = [
@@ -19,7 +20,8 @@ export default function Dashboard() {
     { icon: <IconChartLine className="h-5 w-5" />, label: 'Optimization', path: '/dashboard/optimization' },
     { icon: <IconChartBar className="h-5 w-5" />, label: 'Backtesting', path: '/dashboard/backtesting' },
     { icon: <IconCode className="h-5 w-5" />, label: 'Strat Developer', path: '/dashboard/strat-developer' },
-    { icon: <IconRobot className="h-5 w-5" />, label: 'Agentic Handling', path: '/dashboard/agentic-handling' },
+  { icon: <IconRobot className="h-5 w-5" />, label: 'Agentic Handling', path: '/dashboard/agentic-handling' },
+  { icon: <IconCode className="h-5 w-5" />, label: 'Strategies', path: '/dashboard/strategies' },
   ];
 
   return (
@@ -109,6 +111,7 @@ export default function Dashboard() {
             <Route path="backtesting" element={<DashboardBacktesting />} />
             <Route path="strat-developer" element={<DashboardStratDeveloper />} />
             <Route path="agentic-handling" element={<DashboardAgenticHandling />} />
+            <Route path="strategies" element={<DashboardStrategies />} />
           </Routes>
 
           {/* nested content outlet for the dashboard pages */}

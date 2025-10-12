@@ -1,7 +1,36 @@
 const express = require('express');
-const { auth, requireSubscription } = require('../middleware/auth');
+const { auth, optionalAuth, requireSubscription } = require('../middleware/auth');
 
 const router = express.Router();
+const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
+const STRAT_FILE = path.join(DATA_DIR, 'strategies.json');
+
+function ensureDataDir() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+function saveLocalStrategy(strategy) {
+  try {
+    ensureDataDir();
+    let list = [];
+    if (fs.existsSync(STRAT_FILE)) {
+      const raw = fs.readFileSync(STRAT_FILE, 'utf8');
+      list = JSON.parse(raw || '[]');
+    }
+    list.unshift(strategy);
+    fs.writeFileSync(STRAT_FILE, JSON.stringify(list, null, 2), 'utf8');
+    return strategy;
+  } catch (err) {
+    console.error('Error saving local strategy:', err);
+    throw err;
+  }
+}
 
 // @route   GET /api/trading/strategies
 // @desc    Get user's trading strategies
@@ -301,6 +330,93 @@ router.get('/market-data/:symbol', auth, async (req, res) => {
       success: false,
       message: 'Error fetching market data'
     });
+  }
+});
+
+// @route   POST /api/trading/generate
+// @desc    Generate a strategy from a prompt using the Python generator
+// @access  Private
+router.post('/generate', optionalAuth, async (req, res) => {
+  try {
+    const prompt = req.body.prompt || '';
+
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'generate_strategy.py');
+
+    const runPython = (script, input) => new Promise((resolve) => {
+      const tries = ['python3', 'python'];
+      let stdout = '';
+      let stderr = '';
+      let tried = 0;
+
+      const attempt = () => {
+        const proc = spawn(tries[tried], [script]);
+        stdout = '';
+        stderr = '';
+
+        proc.stdout.on('data', (data) => { stdout += data.toString(); });
+        proc.stderr.on('data', (data) => { stderr += data.toString(); });
+
+        proc.on('error', (err) => {
+          console.error(`Python spawn error (${tries[tried]}):`, err.message || err);
+          tried += 1;
+          if (tried < tries.length) attempt(); else resolve({ stdout: '', stderr: String(err) });
+        });
+
+        proc.on('close', (code) => {
+          resolve({ stdout, stderr, exitCode: code });
+        });
+
+        try {
+          if (proc.stdin && input) {
+            proc.stdin.write(input);
+            proc.stdin.end();
+          }
+        } catch (e) {
+          // ignore
+        }
+      };
+
+      attempt();
+    });
+
+    const result = await runPython(scriptPath, prompt);
+    const { stdout, stderr } = result;
+
+    if (stderr && !stdout) {
+      console.error('Generator stderr:', stderr);
+    }
+
+    // Extract code between markers
+    const startTag = '###CODE_START###';
+    const endTag = '###CODE_END###';
+    let code = '';
+    if (stdout && stdout.includes(startTag) && stdout.includes(endTag)) {
+      code = stdout.split(startTag)[1].split(endTag)[0].trim();
+    } else {
+      code = stdout || stderr || '';
+    }
+
+    const defaultName = (prompt || '').split('\n')[0].trim().slice(0, 60) || `Generated Strategy ${new Date().toISOString()}`;
+    const strategy = {
+      id: Date.now().toString(),
+      name: req.body.name || defaultName,
+      description: req.body.description || (prompt || '').slice(0, 200),
+      code: startTag + '\n' + code + '\n' + endTag,
+      created_at: new Date().toISOString(),
+      owner: req.user ? (req.user._id || req.user.id || req.user) : null,
+      status: 'generated'
+    };
+
+    try {
+      saveLocalStrategy(strategy);
+    } catch (e) {
+      console.error('Failed to persist generated strategy locally:', e);
+    }
+
+    res.json({ success: true, data: { strategy, message: 'generated and complete' } });
+  } catch (error) {
+    console.error('Generate strategy error:', error);
+    res.status(500).json({ success: false, message: 'Error generating strategy' });
   }
 });
 

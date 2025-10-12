@@ -1,172 +1,103 @@
-import React, { useState } from 'react';
-import { IconCode, IconPlayerPlay, IconDeviceFloppy, IconUpload, IconPlus, IconTrash } from '@tabler/icons-react';
+import React, { useEffect, useState } from 'react';
+import { IconCode, IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 
 export default function DashboardStratDeveloper() {
   const [activeTab, setActiveTab] = useState('editor');
-  const [strategyCode, setStrategyCode] = useState(`# Momentum Trading Strategy
-import pandas as pd
-import numpy as np
+  const [strategyCode, setStrategyCode] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [status, setStatus] = useState('');
+  const [strategies, setStrategies] = useState([]);
+  const [name, setName] = useState('');
 
-class MomentumStrategy:
-    def __init__(self, lookback_period=20, threshold=0.02):
-        self.lookback_period = lookback_period
-        self.threshold = threshold
-        
-    def generate_signals(self, data):
-        # Calculate momentum indicator
-        momentum = data['close'].pct_change(self.lookback_period)
-        
-        # Generate buy/sell signals
-        signals = pd.Series(index=data.index, dtype=int)
-        signals[momentum > self.threshold] = 1   # Buy signal
-        signals[momentum < -self.threshold] = -1 # Sell signal
-        signals.fillna(0, inplace=True)
-        
-        return signals
-        
-    def calculate_returns(self, data, signals):
-        returns = data['close'].pct_change() * signals.shift(1)
-        return returns.fillna(0)`);
+  useEffect(() => {
+    loadLocal();
+  }, []);
 
-  const savedStrategies = [
-    { id: 1, name: 'Momentum Bot', type: 'Python', lastModified: '2 hours ago', status: 'active' },
-    { id: 2, name: 'Mean Reversion', type: 'Python', lastModified: '1 day ago', status: 'testing' },
-    { id: 3, name: 'Arbitrage Scanner', type: 'Python', lastModified: '3 days ago', status: 'draft' },
-    { id: 4, name: 'Trend Follower', type: 'Python', lastModified: '1 week ago', status: 'archived' }
-  ];
+  function loadLocal() {
+    try {
+      const list = JSON.parse(localStorage.getItem('strategies') || '[]');
+      setStrategies(list || []);
+    } catch (e) {
+      setStrategies([]);
+    }
+  }
 
-  const templates = [
-    { id: 1, name: 'Basic Moving Average', description: 'Simple MA crossover strategy' },
-    { id: 2, name: 'RSI Mean Reversion', description: 'RSI-based reversal strategy' },
-    { id: 3, name: 'Bollinger Bands', description: 'Volatility-based trading' },
-    { id: 4, name: 'MACD Momentum', description: 'MACD signal-based trading' }
-  ];
+  function saveLocal(s) {
+    try {
+      const list = [s].concat(JSON.parse(localStorage.getItem('strategies') || '[]'));
+      localStorage.setItem('strategies', JSON.stringify(list));
+      setStrategies(list);
+    } catch (e) {
+      console.error('saveLocal error', e);
+    }
+  }
+
+  async function generate() {
+    setStatus('generating...');
+    try {
+      const resp = await fetch('/api/trading/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, name: `Generated - ${new Date().toLocaleString()}` })
+      });
+      const data = await resp.json();
+      if (data?.success && data.data?.strategy) {
+        const strat = data.data.strategy;
+        setStrategyCode(strat.code || '');
+        // Populate name with a short prompt-derived default
+        const defaultName = (prompt || '').split('\n')[0].trim().slice(0, 60) || `Generated ${new Date().toLocaleString()}`;
+        setName(defaultName);
+        // Do NOT save automatically; wait for explicit user Save
+        setStatus('generated (unsaved)');
+      } else {
+        setStatus('generation failed');
+      }
+    } catch (e) {
+      console.error('generate error', e);
+      setStatus('generation failed');
+    }
+    setTimeout(() => setStatus(''), 4000);
+  }
+
+  function selectStrategy(s) {
+    setStrategyCode(s.code || '');
+    setActiveTab('editor');
+  }
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-page-header">
         <h2>Strategy Developer</h2>
-        <p>Build, test, and deploy your custom trading strategies</p>
+        <p>Describe a strategy in plain English and click Generate.</p>
       </div>
 
       <div className="strat-developer-container">
-        {/* Tab Navigation */}
         <div className="tab-navigation">
-          <button 
-            className={`tab ${activeTab === 'editor' ? 'active' : ''}`}
-            onClick={() => setActiveTab('editor')}
-          >
+          <button className={`tab active`}>
             <IconCode className="h-4 w-4" />
             Code Editor
           </button>
-          <button 
-            className={`tab ${activeTab === 'strategies' ? 'active' : ''}`}
-            onClick={() => setActiveTab('strategies')}
-          >
-            <IconDeviceFloppy className="h-4 w-4" />
-            My Strategies
-          </button>
-          <button 
-            className={`tab ${activeTab === 'templates' ? 'active' : ''}`}
-            onClick={() => setActiveTab('templates')}
-          >
-            <IconUpload className="h-4 w-4" />
-            Templates
-          </button>
         </div>
 
-        {/* Code Editor Tab */}
         {activeTab === 'editor' && (
           <div className="editor-section">
             <div className="editor-toolbar">
-              <button className="btn-primary">
-                <IconPlayerPlay className="h-4 w-4" />
-                Test Strategy
-              </button>
-              <button className="btn-secondary">
-                <IconDeviceFloppy className="h-4 w-4" />
-                Save Strategy
-              </button>
-              <button className="btn-secondary">
-                <IconUpload className="h-4 w-4" />
-                Deploy
-              </button>
-            </div>
-            
-            <div className="code-editor">
-              <textarea
-                value={strategyCode}
-                onChange={(e) => setStrategyCode(e.target.value)}
-                className="code-textarea"
-                placeholder="Write your strategy code here..."
-              />
-            </div>
-
-            <div className="editor-output">
-              <h4>Test Output</h4>
-              <div className="output-console">
-                <p>Strategy loaded successfully</p>
-                <p>Backtesting period: 2023-01-01 to 2024-01-01</p>
-                <p>Total trades: 47</p>
-                <p>Win rate: 68.1%</p>
-                <p>Total return: +16.4%</p>
-                <p className="success">Strategy test completed successfully</p>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Describe strategy (e.g. buy dip vs 20MA)" style={{ width: 520, padding: 10, borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.02)', color: '#e6f6f8' }} />
+                <button className="btn-primary" onClick={generate}>Generate</button>
+                <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Strategy name" style={{ padding: 8, borderRadius: 8, border: '1px solid rgba(255,255,255,0.03)', background: 'transparent', color: '#e6f6f8', width: 260 }} />
+                <button className="btn-primary" disabled={!strategyCode} onClick={() => { const s = { id: Date.now().toString(), name: name || `Manual Save ${new Date().toLocaleString()}`, description: '', code: strategyCode, created_at: new Date().toISOString() }; saveLocal(s); setStatus('saved'); setTimeout(()=>setStatus(''),2000); }}>Save to Strategies</button>
+                <div style={{ marginLeft: 12, color: '#3f8ea3', minWidth: 160 }}>{status}</div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* My Strategies Tab */}
-        {activeTab === 'strategies' && (
-          <div className="strategies-section">
-            <div className="strategies-header">
-              <h3>My Strategies</h3>
-              <button className="btn-primary">
-                <IconPlus className="h-4 w-4" />
-                New Strategy
-              </button>
-            </div>
-            
-            <div className="strategies-grid">
-              {savedStrategies.map(strategy => (
-                <div key={strategy.id} className="strategy-card">
-                  <div className="strategy-header">
-                    <h4>{strategy.name}</h4>
-                    <span className={`status ${strategy.status}`}>{strategy.status}</span>
-                  </div>
-                  <p>{strategy.type} • {strategy.lastModified}</p>
-                  <div className="strategy-actions">
-                    <button className="btn-sm">Edit</button>
-                    <button className="btn-sm">Clone</button>
-                    <button className="btn-sm danger">
-                      <IconTrash className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="code-editor">
+              <textarea value={strategyCode} onChange={(e) => setStrategyCode(e.target.value)} className="code-textarea" placeholder="Generated strategy code will appear here..." />
             </div>
           </div>
         )}
 
-        {/* Templates Tab */}
-        {activeTab === 'templates' && (
-          <div className="templates-section">
-            <div className="templates-header">
-              <h3>Strategy Templates</h3>
-              <p>Start with pre-built strategy templates</p>
-            </div>
-            
-            <div className="templates-grid">
-              {templates.map(template => (
-                <div key={template.id} className="template-card">
-                  <h4>{template.name}</h4>
-                  <p>{template.description}</p>
-                  <button className="btn-primary">Use Template</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Strategies list is available on the dedicated Strategies page in the dashboard. */}
       </div>
     </div>
   );
