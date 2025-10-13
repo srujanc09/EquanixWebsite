@@ -355,14 +355,66 @@ router.post('/generate', optionalAuth, async (req, res) => {
 
     const scriptPath = path.join(__dirname, '..', 'scripts', 'generate_strategy.py');
 
+    // Try to resolve a reliable python executable:
+    // - honor process.env.PYTHON
+    // - try Windows 'py' launcher (py -3)
+    // - use system 'where' (Windows) or 'which' (Unix) to find python
+    function findPythonExecutable() {
+      try {
+        if (process.env.PYTHON && fs.existsSync(process.env.PYTHON)) {
+          return process.env.PYTHON;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // Try Windows launcher 'py' which can be more reliable on Windows
+      try {
+        const check = require('child_process').spawnSync('py', ['-3', '-c', 'import sys;print(sys.executable)']);
+        if (check && check.status === 0 && check.stdout) {
+          const p = check.stdout.toString().trim();
+          if (p && fs.existsSync(p)) return p;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      try {
+        const whichCmd = process.platform === 'win32' ? 'where' : 'which';
+        const which = require('child_process').spawnSync(whichCmd, ['python']);
+        if (which && which.status === 0 && which.stdout) {
+          const out = which.stdout.toString().trim().split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+          // prefer entries that are not the Microsoft Store alias
+          for (const p of out) {
+            if (!p.toLowerCase().includes('windowsapps') && fs.existsSync(p)) return p;
+          }
+          if (out.length && fs.existsSync(out[0])) return out[0];
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      return null;
+    }
+
     const runPython = (script, input) => new Promise((resolve) => {
-      const tries = ['python3', 'python'];
+      const resolved = findPythonExecutable();
+      const tries = [];
+      if (resolved) tries.push(resolved);
+      // Add common fallbacks. 'py' is the Windows launcher and should be tried before raw 'python'
+      tries.push('py');
+      tries.push('python3');
+      tries.push('python');
+
       let stdout = '';
       let stderr = '';
       let tried = 0;
 
       const attempt = () => {
-        const proc = spawn(tries[tried], [script]);
+        const cmd = tries[tried];
+        // If using the py launcher, pass -3 to ensure Python 3
+        const args = (cmd === 'py') ? ['-3', script] : [script];
+        const proc = spawn(cmd, args);
         stdout = '';
         stderr = '';
 
@@ -370,7 +422,7 @@ router.post('/generate', optionalAuth, async (req, res) => {
         proc.stderr.on('data', (data) => { stderr += data.toString(); });
 
         proc.on('error', (err) => {
-          console.error(`Python spawn error (${tries[tried]}):`, err.message || err);
+          console.error(`Python spawn error (${cmd}):`, err.message || err);
           tried += 1;
           if (tried < tries.length) attempt(); else resolve({ stdout: '', stderr: String(err) });
         });

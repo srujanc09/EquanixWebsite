@@ -14,7 +14,11 @@ const app = express();
 let isMongoConnected = false;
 
 // If running behind a proxy or dev reverse proxy, allow Express to trust X-Forwarded-* headers
-app.set('trust proxy', true);
+// For local development we disable trust proxy by default to avoid permissive rate-limit behavior.
+// Enable by setting TRUST_PROXY=true in the environment or when running in production.
+const trustProxy = (process.env.TRUST_PROXY === 'true') || (process.env.NODE_ENV === 'production');
+app.set('trust proxy', trustProxy);
+console.log('Express trust proxy:', trustProxy);
 
 // Security middleware
 app.use(helmet());
