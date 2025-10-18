@@ -486,8 +486,9 @@ router.post('/generate', optionalAuth, async (req, res) => {
       console.error('Failed to persist generated strategy locally:', e);
     }
 
-    // Return strategy as top-level fields to avoid client-side parsing oddities
-    res.json({ success: true, strategy, message: 'generated and complete' });
+  // Return strategy both nested (legacy) and top-level so frontend code and
+  // external callers (PowerShell) can read it reliably.
+  res.json({ success: true, data: { strategy }, strategy, message: 'generated and complete' });
   } catch (error) {
     console.error('Generate strategy error:', error);
     res.status(500).json({ success: false, message: 'Error generating strategy' });
