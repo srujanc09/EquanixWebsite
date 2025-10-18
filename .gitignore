@@ -42,9 +42,8 @@ lerna-debug.log*
 Thumbs.db
 
 # Env files
-.env
-.env.*
-/backend/.env
+# NOTE: environment files will be tracked in this repository per project preference.
+# Be aware that committing .env may expose secrets — rotate keys if needed.
 
 # IDEs and editors
 .idea/

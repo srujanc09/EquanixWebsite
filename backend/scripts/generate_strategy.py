@@ -82,9 +82,12 @@ def main():
         try:
             # Lazy import so the script still works if the package isn't installed
             from google import genai
+            import traceback, sys
 
+            # Use a model name that's available for this project/account.
+            # 'models/gemini-pro-latest' is present in the account's model list.
             client = genai.Client()
-            resp = client.models.generate_content(model='gemini-2.1', contents=prompt)
+            resp = client.models.generate_content(model='models/gemini-pro-latest', contents=prompt)
             text = getattr(resp, 'text', None) or str(resp)
             # Try to find the code markers; if not present, still return the text
             if '###CODE_START###' in text and '###CODE_END###' in text:
@@ -97,6 +100,12 @@ def main():
                 print('###CODE_END###')
                 return
         except Exception as e:
+            # Print detailed error to stderr for debugging, then fall back
+            try:
+                traceback.print_exc(file=sys.stderr)
+                print(f"GENAI ERROR: {repr(e)}", file=sys.stderr)
+            except Exception:
+                pass
             # Fall back to safe template (include prompt)
             print(fallback_strategy(prompt_in))
             return

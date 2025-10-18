@@ -414,6 +414,7 @@ router.post('/generate', optionalAuth, async (req, res) => {
         const cmd = tries[tried];
         // If using the py launcher, pass -3 to ensure Python 3
         const args = (cmd === 'py') ? ['-3', script] : [script];
+        console.log(`Attempting to spawn python command: ${cmd} ${args.join(' ')}`);
         const proc = spawn(cmd, args);
         stdout = '';
         stderr = '';
@@ -428,6 +429,9 @@ router.post('/generate', optionalAuth, async (req, res) => {
         });
 
         proc.on('close', (code) => {
+          console.log(`Python process (${cmd}) exited with code=${code}`);
+          if (stdout) console.log('Python stdout:', stdout.slice(0, 2000));
+          if (stderr) console.error('Python stderr:', stderr.slice(0, 2000));
           resolve({ stdout, stderr, exitCode: code });
         });
 
@@ -473,12 +477,17 @@ router.post('/generate', optionalAuth, async (req, res) => {
     };
 
     try {
+      // Log a short preview and size to help diagnose client parsing issues
+      const preview = (strategy.code || '').slice(0, 800).replace(/\r/g, '');
+      console.log('Persisting generated strategy. code length=', (strategy.code || '').length);
+      console.log('Strategy code preview:\n', preview);
       saveLocalStrategy(strategy);
     } catch (e) {
       console.error('Failed to persist generated strategy locally:', e);
     }
 
-    res.json({ success: true, data: { strategy, message: 'generated and complete' } });
+    // Return strategy as top-level fields to avoid client-side parsing oddities
+    res.json({ success: true, strategy, message: 'generated and complete' });
   } catch (error) {
     console.error('Generate strategy error:', error);
     res.status(500).json({ success: false, message: 'Error generating strategy' });

@@ -14,9 +14,20 @@ const app = express();
 let isMongoConnected = false;
 
 // If running behind a proxy or dev reverse proxy, allow Express to trust X-Forwarded-* headers
-// For local development we disable trust proxy by default to avoid permissive rate-limit behavior.
-// Enable by setting TRUST_PROXY=true in the environment or when running in production.
-const trustProxy = (process.env.TRUST_PROXY === 'true') || (process.env.NODE_ENV === 'production');
+// Behavior:
+// - If TRUST_PROXY env is explicitly set (true/false), honor it.
+// - In development we set trust proxy to 'loopback' so local dev proxies (webpack, etc.)
+//   that add X-Forwarded-* headers are accepted without enabling a permissive proxy.
+// - In production we enable trust proxy by default.
+let trustProxy;
+if (typeof process.env.TRUST_PROXY !== 'undefined') {
+  trustProxy = (process.env.TRUST_PROXY === 'true');
+} else if (process.env.NODE_ENV === 'production') {
+  trustProxy = true;
+} else {
+  // non-permissive trust proxy for development: accept headers only from loopback
+  trustProxy = 'loopback';
+}
 app.set('trust proxy', trustProxy);
 console.log('Express trust proxy:', trustProxy);
 
@@ -91,11 +102,33 @@ async function startServer() {
   app.use('/api/trading', tradingRoutes);
 
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
+  // Keep a reference to the server so we can close it cleanly on shutdown/restarts
+  const server = app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Client URL: ${process.env.CLIENT_URL}`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
   });
+
+  server.on('error', (err) => {
+    console.error('Server error:', err);
+  });
+
+  // Graceful shutdown handlers
+  const shutdown = (signal) => {
+    console.log(`Received ${signal}. Closing server...`);
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+    // Force exit if not closed within a timeout
+    setTimeout(() => {
+      console.error('Could not close connections in time, forcing shutdown');
+      process.exit(1);
+    }, 5000).unref();
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
 // Start the server
